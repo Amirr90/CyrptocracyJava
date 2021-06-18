@@ -42,9 +42,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HomeScreen extends AppCompatActivity {
-    private ViewPager pager;
-    private ViewPagerAdapter pagerAdapter;
-    private TabLayout tabLayout;
     static public TextView titleText;
     static RelativeLayout mLoadingLayout, mDataLayout;
     public static String CURRENCY = "inr";
@@ -58,10 +55,11 @@ public class HomeScreen extends AppCompatActivity {
     public ImageView mSettingsIcon;
     FirebaseFirestore db;
     FirebaseAuth auth;
-    private String TAG = "HomeScreen";
+    private final String TAG = "HomeScreen";
     public int SELECTED_ITEM = 3;
     FrameLayout adContainerView;
     AdView adView;
+    AdRequest adRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,7 +136,7 @@ public class HomeScreen extends AppCompatActivity {
 
 
     private void loadBanner() {
-        AdRequest adRequest =
+        adRequest =
                 new AdRequest.Builder()
                         .build();
 
@@ -277,9 +275,9 @@ public class HomeScreen extends AppCompatActivity {
     }
 
     private void setFragment() {
-        tabLayout = (TabLayout) findViewById(R.id.tabs);
-        pager = (ViewPager) findViewById(R.id.view_pager);
-        pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        ViewPager pager = (ViewPager) findViewById(R.id.view_pager);
+        ViewPagerAdapter pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         pagerAdapter.Addfragment(new CoinFragment(HomeScreen.this), "Market");
         pagerAdapter.Addfragment(new FavouriteFragment(HomeScreen.this), "Favourite");
         pagerAdapter.Addfragment(new ExchangeFragment(HomeScreen.this), "Exchanges");

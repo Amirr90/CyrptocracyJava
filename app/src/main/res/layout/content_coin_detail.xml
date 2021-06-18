@@ -13,8 +13,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-
-
         <androidx.cardview.widget.CardView
             android:id="@+id/card_view_price"
             android:layout_width="match_parent"
@@ -31,7 +29,6 @@
                 android:padding="10dp">
 
                 <de.hdodenhof.circleimageview.CircleImageView
-                    xmlns:app="http://schemas.android.com/apk/res-auto"
                     android:layout_centerHorizontal="true"
                     android:id="@+id/profile_image"
                     android:layout_width="50dp"
@@ -94,11 +91,20 @@
 
         </androidx.cardview.widget.CardView>
 
+
+        <FrameLayout
+            android:layout_below="@+id/card_view_price"
+            android:id="@+id/ad_view_container2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        </FrameLayout>
+
         <androidx.cardview.widget.CardView
             android:id="@+id/card_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/card_view_price"
+            android:layout_below="@+id/ad_view_container2"
             android:layout_margin="5dp"
             card_view:cardCornerRadius="4dp"
             card_view:cardElevation="3dp">
@@ -345,6 +351,13 @@
 
         </androidx.cardview.widget.CardView>
 
+        <FrameLayout
+            android:layout_below="@+id/card_view_graph"
+            android:id="@+id/ad_view_container3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        </FrameLayout>
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
