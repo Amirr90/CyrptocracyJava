@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.recyclerview.widget.RecyclerView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_marginLeft="10dp"
+    android:layout_marginRight="10dp"
+    android:layout_marginTop="10dp"
+    android:id="@+id/pair_rec"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:listitem="@layout/coin_pair_view"
+    android:layout_height="wrap_content">
+
+
+
+</androidx.recyclerview.widget.RecyclerView>

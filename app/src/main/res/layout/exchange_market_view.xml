@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    android:layout_marginBottom="0.5dp"
+    android:padding="4dp"
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+
+    <RelativeLayout
+        android:background="?android:selectableItemBackground"
+        android:focusable="true"
+        android:clickable="true"
+        android:layout_below="@+id/ex_tabs"
+        android:id="@+id/ex_header_lay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/textView13"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/amiko"
+            android:padding="10dp"
+            android:text="PAIR"
+            android:textAlignment="center"
+            android:textColor="@color/colorAccent"
+            android:textSize="14sp" />
+
+        <TextView
+            android:textSize="14sp"
+            android:textColor="@color/colorAccent"
+            android:layout_centerVertical="true"
+            android:id="@+id/textView14"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="0dp"
+            android:layout_toRightOf="@id/textView13"
+            android:fontFamily="@font/amiko"
+            android:padding="10dp"
+            android:text="PRICE" />
+
+        <TextView
+            android:textSize="14sp"
+            android:textColor="@color/colorAccent"
+            android:layout_centerVertical="true"
+            android:id="@+id/textView17"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="134dp"
+            android:layout_marginEnd="22dp"
+            android:layout_marginRight="20dp"
+            android:layout_toStartOf="@+id/textView18"
+            android:layout_toRightOf="@id/textView14"
+            android:fontFamily="@font/amiko"
+            android:padding="10dp"
+            android:text="24H VOLUME" />
+
+        <ImageView
+
+            android:id="@+id/textView18"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="20dp"
+            android:fontFamily="@font/amiko"
+            android:src="@drawable/green_cirle" />
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>

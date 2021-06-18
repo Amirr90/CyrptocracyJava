@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="0.5dp"
+    android:padding="5dp"
+    app:cardElevation="3dp">
+
+
+    <RelativeLayout
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:id="@+id/main_lay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:selectableItemBackground"
+        android:focusable="true"
+        android:clickable="true">
+
+        <ImageView
+            android:id="@+id/coin_image"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_centerVertical="true"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_toRightOf="@+id/rank"
+            app:srcCompat="@drawable/app_logo" />
+
+        <ImageView
+            android:id="@+id/favourite_icon"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="5dp" />
+
+        <RelativeLayout
+            android:id="@+id/inner_lay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_toRightOf="@id/coin_image"
+            android:padding="5dp">
+
+            <ImageView
+                android:id="@+id/up_down_image"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_below="@id/name"
+                android:layout_marginLeft="3dp"
+                android:layout_marginTop="2dp"
+                android:layout_toRightOf="@id/symbol" />
+
+            <TextView
+                android:id="@+id/symbol"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/name"
+                android:fontFamily="@font/amiko"
+                android:textAllCaps="true"
+                android:textSize="12sp" />
+
+            <TextView
+                android:text="Name"
+                android:id="@+id/name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="monospace"
+                android:textColor="@color/colorbackground"
+                android:textSize="14sp"
+                android:maxLength="18"
+                android:textStyle="bold" />
+
+
+
+
+            <TextView
+                android:id="@+id/change_percentage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/name"
+                android:layout_marginLeft="2dp"
+                android:layout_toRightOf="@id/up_down_image"
+                android:fontFamily="@font/amiko"
+                android:textSize="12sp" />
+        </RelativeLayout>
+
+        <TextView
+            android:textColor="@color/colorbackground"
+            android:layout_marginRight="5dp"
+            android:id="@+id/rank"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:fontFamily="@font/amiko"
+            android:paddingLeft="10dp"
+            android:paddingRight="5dp"
+            android:textSize="14sp" />
+
+
+        <co.blankkeys.animatedlinegraphview.AnimatedLineGraphView
+            android:id="@+id/graph"
+            app:lineThickness="3"
+            app:circleRadius="5"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/coin_price"
+            android:layout_toRightOf="@+id/inner_lay"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"/>
+
+        <TextView
+            android:id="@+id/coin_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:fontFamily="monospace"
+            android:padding="10dp"
+            android:text="CoinName Here"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="18sp"
+            android:visibility="gone" />
+
+        <TextView
+            android:textSize="16sp"
+            android:id="@+id/coin_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="8dp"
+            android:layout_toLeftOf="@id/favourite_icon"
+            android:fontFamily="@font/amiko"
+            android:paddingTop="10dp"
+            android:textColor="@color/common_google_signin_btn_text_dark_focused"
+            android:textStyle="bold" />
+        <TextView
+            android:id="@+id/mcap"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/coin_price"
+            android:layout_marginRight="8dp"
+            android:layout_toLeftOf="@id/favourite_icon"
+            android:fontFamily="@font/amiko"
+            android:textSize="14sp"/>
+    </RelativeLayout>
+</com.google.android.material.card.MaterialCardView>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".Fragments.ExchangeMarket">
+
+    <!-- TODO: Update blank fragment layout -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:layout_width="match_parent"
+        android:id="@+id/ex_mar_swiperefresh"
+        android:layout_height="match_parent">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <RelativeLayout
+                android:background="@color/colorPrimary"
+                android:padding="5dp"
+                android:id="@+id/header_lay"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/textView13"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/amiko"
+                    android:padding="10dp"
+                    android:text="PAIR"
+                    android:textColor="@color/colorPrimaryDark" />
+
+                <TextView
+                    android:id="@+id/textView14"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_toRightOf="@id/textView13"
+                    android:fontFamily="@font/amiko"
+                    android:padding="10dp"
+                    android:text="PRICE"
+                    android:textColor="@color/colorPrimaryDark" />
+
+                <TextView
+                    android:id="@+id/textView17"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="84dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_toStartOf="@+id/textView18"
+                    android:layout_toRightOf="@id/textView14"
+                    android:fontFamily="@font/amiko"
+                    android:padding="10dp"
+                    android:text="24H VOLUME"
+                    android:textColor="@color/colorPrimaryDark" />
+
+                <TextView
+                    android:textColor="@color/colorPrimaryDark"
+                    android:id="@+id/textView18"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="12dp"
+                    android:fontFamily="@font/amiko"
+                    android:padding="10dp"
+                    android:text="TRUST" />
+            </RelativeLayout>
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_below="@+id/header_lay"
+                android:layout_margin="3dp"
+                android:layout_width="match_parent"
+                android:visibility="gone"
+                android:layout_height="wrap_content"
+                android:id="@+id/ex_market_recycler"
+                tools:listitem="@layout/coin_view"/>
+
+            <com.wang.avi.AVLoadingIndicatorView
+                android:padding="10dp"
+                android:visibility="visible"
+                android:elevation="10dp"
+                android:id="@+id/ex_progress_avi"
+                android:layout_centerInParent="true"
+                style="@style/AVLoadingIndicatorView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:indicatorColor="@color/colorbackground"
+                app:indicatorName="LineScaleIndicator" />
+        </RelativeLayout>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>>
+
+</FrameLayout>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="0.5dp">
+
+    <RelativeLayout
+        android:background="?android:selectableItemBackground"
+        android:clickable="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp">
+
+        <ImageView
+            android:padding="5dp"
+            android:id="@+id/imageView2"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            app:srcCompat="@drawable/app_logo" />
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/imageView2">
+
+            <TextView
+                android:id="@+id/target"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/amiko"
+                android:paddingLeft="5dp"
+                android:text="BTC"
+                android:textColor="@color/colorAccent" />
+
+            <TextView
+                android:id="@+id/trading_site_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/target"
+                android:fontFamily="@font/amiko"
+                android:paddingLeft="5dp"
+                android:text="Binnance"
+                android:textColor="@color/colorPrimaryDark" />
+
+            <TextView
+                android:id="@+id/base"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/target"
+                android:text="/USDT"
+                android:textColor="@color/dark_grey"
+                android:textSize="12sp" />
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/textView9"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:fontFamily="@font/amiko"
+            android:text="Rs 1425846"
+            android:textColor="@color/colorPrimaryDark" />
+
+        <TextView
+            android:id="@+id/textView10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/textView9"
+            android:layout_alignParentRight="true"
+            android:fontFamily="@font/amiko"
+            android:text="Rs 214"
+            android:textColor="@color/colorPrimaryDark" />
+    </RelativeLayout>
+</com.google.android.material.card.MaterialCardView>

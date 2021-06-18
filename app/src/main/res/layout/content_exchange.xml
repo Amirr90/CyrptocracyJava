@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".ExchangeActivity"
+    tools:showIn="@layout/activity_exchange">
+
+    <RelativeLayout
+        android:id="@+id/lay1"
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:fontFamily="@font/amiko"
+            android:textAlignment="center"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/textView11"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/textView"
+            android:layout_centerHorizontal="true"
+            android:fontFamily="@font/amiko"
+            android:paddingTop="2dp"
+            android:textSize="12sp" />
+
+        <LinearLayout
+            android:weightSum="3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/textView11"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="10dp">
+
+            <TextView
+                android:id="@+id/textView12"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:layout_weight="0.8"
+                android:background="@drawable/round_textview"
+                android:fontFamily="@font/amiko_semibold"
+                android:gravity="center"
+                android:textColor="@color/fui_bgGoogle"
+                android:textSize="10sp" />
+
+            <TextView
+                android:id="@+id/textView15"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:layout_weight="1.2"
+                android:background="@drawable/round_textview_orange"
+                android:fontFamily="@font/amiko_semibold"
+                android:gravity="center"
+                android:textColor="@color/common_google_signin_btn_text_dark_default"
+                android:textSize="10sp" />
+
+            <TextView
+                android:id="@+id/textView16"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:layout_weight="1"
+                android:background="@drawable/round_textview"
+                android:fontFamily="@font/amiko_semibold"
+                android:gravity="center"
+                android:textColor="@color/fui_bgGoogle"
+                android:textSize="10sp" />
+
+        </LinearLayout>
+    </RelativeLayout>
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/ex_tabs"
+        android:layout_below="@+id/lay1"
+        style="@style/tabfontstyle"
+        android:backgroundTint="@color/colorWhite"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary" />
+
+    <androidx.viewpager.widget.ViewPager
+        android:background="@color/colorWhite"
+        android:layout_below="@+id/ex_tabs"
+        android:id="@+id/ex_view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+</RelativeLayout>

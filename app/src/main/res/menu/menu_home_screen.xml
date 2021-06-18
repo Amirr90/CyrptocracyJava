@@ -1,0 +1,27 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.e.cryptocracy.HomeScreen">
+
+    <item
+        app:showAsAction="always"
+        android:id="@+id/action_currency"
+        android:orderInCategory="100"
+        android:title="@string/action_currency"
+        />
+
+    <item
+        android:icon="@drawable/ic_search_black_24dp"
+        android:id="@+id/action_search"
+        android:orderInCategory="100"
+        android:title="@string/action_settings"
+        app:showAsAction="always" />
+
+
+    <item
+        android:icon="@drawable/ic_more_vert_black_24dp"
+        app:showAsAction="always"
+        android:id="@+id/action_settings"
+        android:orderInCategory="101"
+        android:title="@string/action_settings" />
+</menu>
