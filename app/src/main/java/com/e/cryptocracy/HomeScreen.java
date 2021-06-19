@@ -23,6 +23,7 @@ import com.e.cryptocracy.Adapter.ViewPagerAdapter;
 import com.e.cryptocracy.Fragments.CoinFragment;
 import com.e.cryptocracy.Fragments.ExchangeFragment;
 import com.e.cryptocracy.Fragments.FavouriteFragment;
+import com.e.cryptocracy.interfaces.onLoadMoreInterface;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
@@ -80,7 +81,7 @@ public class HomeScreen extends AppCompatActivity {
         adContainerView = findViewById(R.id.ad_view_container);
 
         adView = new AdView(this);
-        adView.setAdUnitId(getString(R.string.adaptive_banner_ad_unit_id));
+        adView.setAdUnitId(getString(R.string.adaptive_banner_ad_unit_id_test));
         adContainerView.addView(adView);
 
         initAds();
@@ -278,9 +279,9 @@ public class HomeScreen extends AppCompatActivity {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         ViewPager pager = (ViewPager) findViewById(R.id.view_pager);
         ViewPagerAdapter pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
-        pagerAdapter.Addfragment(new CoinFragment(HomeScreen.this), "Market");
-        pagerAdapter.Addfragment(new FavouriteFragment(HomeScreen.this), "Favourite");
-        pagerAdapter.Addfragment(new ExchangeFragment(HomeScreen.this), "Exchanges");
+        pagerAdapter.Addfragment(new CoinFragment(HomeScreen.this, onLoadMoreInterface), "Market");
+        pagerAdapter.Addfragment(new FavouriteFragment(HomeScreen.this,onLoadMoreInterface), "Favourite");
+        pagerAdapter.Addfragment(new ExchangeFragment(HomeScreen.this,onLoadMoreInterface), "Exchanges");
 
         pager.setAdapter(pagerAdapter);
         tabLayout.setupWithViewPager(pager);
@@ -307,4 +308,13 @@ public class HomeScreen extends AppCompatActivity {
     }
 
 
+    public onLoadMoreInterface onLoadMoreInterface = new onLoadMoreInterface() {
+        @Override
+        public void onLoadMore(Object o) {
+            if (null != adView && null != adRequest) {
+                // Step 5 - Start loading the ad in the background.
+                adView.loadAd(adRequest);
+            }
+        }
+    };
 }

@@ -9,9 +9,10 @@
     tools:context=".CoinDetailActivity"
     tools:showIn="@layout/activity_coin_detail">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
         <androidx.cardview.widget.CardView
             android:id="@+id/card_view_price"
@@ -29,36 +30,36 @@
                 android:padding="10dp">
 
                 <de.hdodenhof.circleimageview.CircleImageView
-                    android:layout_centerHorizontal="true"
                     android:id="@+id/profile_image"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    />
+                    android:layout_centerHorizontal="true" />
 
 
                 <ImageView
-                    android:layout_below="@+id/profile_image"
-                    android:layout_marginRight="10dp"
-                    android:layout_centerVertical="true"
                     android:id="@+id/favourite_icon_1"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
-                    android:layout_alignParentRight="true" />
+                    android:layout_below="@+id/profile_image"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="10dp" />
 
                 <TextView
-                    android:layout_below="@+id/profile_image"
                     android:id="@+id/coin_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_below="@+id/profile_image"
                     android:layout_centerHorizontal="true"
                     android:fontFamily="@font/amiko"
                     android:textColor="@color/fui_bgGitHub"
                     android:textSize="24sp" />
+
                 <TextView
-                    android:layout_below="@+id/coin_name"
                     android:id="@+id/price"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_below="@+id/coin_name"
                     android:layout_centerHorizontal="true"
                     android:fontFamily="@font/amiko"
                     android:textColor="@color/fui_bgGitHub"
@@ -75,15 +76,12 @@
                         android:id="@+id/up_down_image"
                         android:layout_width="15dp"
                         android:layout_height="15dp"
-                        android:layout_centerHorizontal="true"
-                        android:layout_centerVertical="true"
                         android:layout_marginTop="2dp" />
 
                     <TextView
                         android:id="@+id/change_percentage"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
                         android:fontFamily="@font/amiko"
                         android:textSize="12sp" />
                 </LinearLayout>
@@ -92,19 +90,27 @@
         </androidx.cardview.widget.CardView>
 
 
-        <FrameLayout
-            android:layout_below="@+id/card_view_price"
-            android:id="@+id/ad_view_container2"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/adCardView1"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/card_view_price"
+            android:layout_margin="5dp"
+            card_view:cardCornerRadius="4dp"
+            card_view:cardElevation="3dp">
 
-        </FrameLayout>
+            <FrameLayout
+                android:id="@+id/ad_view_container2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </androidx.cardview.widget.CardView>
+
 
         <androidx.cardview.widget.CardView
             android:id="@+id/card_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/ad_view_container2"
+            android:layout_below="@+id/adCardView1"
             android:layout_margin="5dp"
             card_view:cardCornerRadius="4dp"
             card_view:cardElevation="3dp">
@@ -261,12 +267,106 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
+        <androidx.cardview.widget.CardView
+            android:id="@+id/convertLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            card_view:cardCornerRadius="4dp"
+            card_view:cardElevation="3dp">
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textView24"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:drawablePadding="10dp"
+                    android:fontFamily="@font/amiko"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    android:text="@string/quick_converter"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textSize="16sp"
+                    app:drawableEndCompat="@drawable/ic_baseline_change_circle_24" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="10dp"
+                    android:weightSum="2">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/textInputLay"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="5dp"
+                        android:layout_weight="1"
+                        android:hint="@string/coin"
+                        app:layout_constraintStart_toStartOf="parent"
+                        tools:layout_editor_absoluteY="10dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etCoinQty"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="numberDecimal"
+                            android:text="1" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/textInputLayPrice"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:layout_weight="1"
+                        android:hint="@string/coin"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        tools:layout_editor_absoluteY="10dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/textPriceConverted"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:enabled="false"
+                            android:inputType="none"
+                            android:text="@string/price" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/adCardView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            card_view:cardCornerRadius="4dp"
+            card_view:cardElevation="3dp">
+
+            <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/adView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                ads:adSize="FULL_BANNER"
+                ads:adUnitId="@string/adaptive_banner_ad_unit_id_test" />
+        </androidx.cardview.widget.CardView>
+
         <com.nex3z.togglebuttongroup.SingleSelectToggleGroup
             android:id="@+id/group_choices"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/card_view"
-            android:layout_centerHorizontal="true"
             android:background="@android:color/white"
             android:padding="10dp"
             app:tbgCheckedButton="@+id/choice_24h">
@@ -352,10 +452,10 @@
         </androidx.cardview.widget.CardView>
 
         <FrameLayout
-            android:layout_below="@+id/card_view_graph"
             android:id="@+id/ad_view_container3"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/card_view_graph">
 
         </FrameLayout>
 
@@ -668,12 +768,12 @@
         </androidx.cardview.widget.CardView>
 
         <ProgressBar
-            android:layout_marginTop="230dp"
             android:id="@+id/progress_bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
+            android:layout_marginTop="230dp"
             android:elevation="5dp" />
-    </RelativeLayout>
+    </LinearLayout>
 
 </androidx.core.widget.NestedScrollView>

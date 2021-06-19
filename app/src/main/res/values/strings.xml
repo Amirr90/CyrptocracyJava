@@ -172,6 +172,14 @@
     <string name="msg_subscribed">subscribed</string>
     <string name="msg_subscribe_failed">un-subscribe</string>
     <string name="inr">INR</string>
+
+    <!--    Test Ad Id-->
     <string name="adaptive_banner_ad_unit_id_test">ca-app-pub-3940256099942544/6300978111</string>
+
+    <!--    Live Ad Id-->
+    <!--        <string name="adaptive_banner_ad_unit_id_test">ca-app-pub-5778282166425967/2981756838</string>-->
     <string name="adaptive_banner_ad_unit_id">ca-app-pub-5778282166425967/2981756838</string>
+    <string name="price">Price</string>
+    <string name="quick_converter">Quick Converter</string>
+    <string name="coin">Coin</string>
 </resources>

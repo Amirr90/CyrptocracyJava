@@ -23,6 +23,7 @@ import com.e.cryptocracy.HomeScreen;
 import com.e.cryptocracy.Interface.RetrofitService;
 import com.e.cryptocracy.Model.CoinModal;
 import com.e.cryptocracy.R;
+import com.e.cryptocracy.interfaces.onLoadMoreInterface;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -52,12 +53,15 @@ public class CoinFragment extends Fragment {
     List<CoinModal> coinModalList = new ArrayList<>();
     RecyclerView recyclerView;
     AVLoadingIndicatorView progress;
-    int ITEM_VIEWD, TOTAL_ITEM, CURRENT_ITEM, CURRENT_PAGE;
+    int ITEM_VIEWED, TOTAL_ITEM, CURRENT_ITEM, CURRENT_PAGE;
     RecyclerView.LayoutManager layoutManager;
     SwipeRefreshLayout refreshLayout;
 
+    onLoadMoreInterface onLoadMoreInterface;
+
     @SuppressLint("ValidFragment")
-    public CoinFragment(Context context) {
+    public CoinFragment(Context context, onLoadMoreInterface onLoadMoreInterface) {
+        this.onLoadMoreInterface = onLoadMoreInterface;
         this.context = context;
         final Animation aniFade = AnimationUtils.loadAnimation(context, R.anim.fade_in);
         HomeScreen.titleText.startAnimation(aniFade);
@@ -93,11 +97,12 @@ public class CoinFragment extends Fragment {
                 super.onScrolled(recyclerView, dx, dy);
                 TOTAL_ITEM = layoutManager.getItemCount();
                 CURRENT_ITEM = layoutManager.getChildCount();
-                ITEM_VIEWD = ((LinearLayoutManager) layoutManager).findFirstVisibleItemPosition();
-                if (TOTAL_ITEM == ITEM_VIEWD + CURRENT_ITEM) {
+                ITEM_VIEWED = ((LinearLayoutManager) layoutManager).findFirstVisibleItemPosition();
+                if (TOTAL_ITEM == ITEM_VIEWED + CURRENT_ITEM) {
                     CURRENT_PAGE = CURRENT_PAGE + 1;
                     progress.setVisibility(View.VISIBLE);
                     loadCoinData(CURRENT_PAGE);
+
                 }
 
             }
@@ -118,6 +123,7 @@ public class CoinFragment extends Fragment {
     }
 
     private void loadCoinData(int currentPage) {
+        onLoadMoreInterface.onLoadMore(currentPage);
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.coingecko.com/")
                 .addConverterFactory(GsonConverterFactory.create())

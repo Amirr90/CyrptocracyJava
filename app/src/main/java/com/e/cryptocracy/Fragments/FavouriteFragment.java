@@ -6,11 +6,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,11 +15,18 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.e.cryptocracy.CoinDetailActivity;
 import com.e.cryptocracy.HomeScreen;
 import com.e.cryptocracy.Interface.RetrofitService;
 import com.e.cryptocracy.Model.CoinModal;
 import com.e.cryptocracy.R;
+import com.e.cryptocracy.interfaces.onLoadMoreInterface;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -72,11 +74,12 @@ public class FavouriteFragment extends Fragment {
     private static int MAX_LENGTH = 4;
     ProgressDialog dialog;
 
+    onLoadMoreInterface onLoadMoreInterface;
 
     @SuppressLint("ValidFragment")
-    public FavouriteFragment(Context context) {
+    public FavouriteFragment(Context context, onLoadMoreInterface onLoadMoreInterface) {
         this.context = context;
-        // Required empty public constructor
+        this.onLoadMoreInterface = onLoadMoreInterface;
         adapter = new FavCoinAdapter(coinFavList, context);
 
     }
@@ -180,6 +183,7 @@ public class FavouriteFragment extends Fragment {
     }
 
     public void loadFavCoinData(final ProgressDialog dialog) {
+        onLoadMoreInterface.onLoadMore(dialog);
         FavRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {

@@ -3,6 +3,8 @@ package com.e.cryptocracy;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
@@ -43,6 +45,8 @@ import com.google.android.gms.ads.initialization.OnInitializationCompleteListene
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -69,9 +73,7 @@ public class CoinDetailActivity extends AppCompatActivity {
     private static final String TAG = "CoinDetailActivity";
     public String COIN_ID;
     FirebaseFirestore db;
-    private String DAYS;
     List<DataEntry> seriesData;
-    private String change = "24h,7d,14d,30d,200d,1y";
     TextView market_cap_rank, market_cap, T_volume, high24, low24, available_total,
             allTime_high, since_allTimeHigh, allTimeHighDate, mName;
     TextView H24, D7, D14, D30, D200, Y1;
@@ -90,9 +92,14 @@ public class CoinDetailActivity extends AppCompatActivity {
 
     //Add
     FrameLayout adContainerView, adContainerView2;
-    AdView adView;
-    AdRequest adRequest;
+    AdView adView, mAdView;
+    AdRequest adRequest, adRequest2;
 
+    TextInputLayout inputLayout, inputLayoutPrice;
+    TextInputEditText coinQty, coinPriceConverted;
+
+    Float CoinPrice;
+    NumberFormat format;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,7 +115,7 @@ public class CoinDetailActivity extends AppCompatActivity {
         findViews();
         if (getIntent().hasExtra("coin_id")) {
             COIN_ID = getIntent().getStringExtra("coin_id");
-            DAYS = "1";
+            String DAYS = "1";
             setToolbar(toolbar);
             getCoinDataById(COIN_ID);
             setGraphView(DAYS, COIN_ID);
@@ -243,13 +250,47 @@ public class CoinDetailActivity extends AppCompatActivity {
         adContainerView = findViewById(R.id.ad_view_container2);
         adContainerView2 = findViewById(R.id.ad_view_container3);
 
+        format = NumberFormat.getCurrencyInstance();
+        format.setMaximumFractionDigits(6);
+        format.setCurrency(Currency.getInstance(HomeScreen.CURRENCY));
 
+        mAdView = findViewById(R.id.adView);
+
+        inputLayout = findViewById(R.id.textInputLay);
+        inputLayoutPrice = findViewById(R.id.textInputLayPrice);
+        coinQty = findViewById(R.id.etCoinQty);
+        coinPriceConverted = findViewById(R.id.textPriceConverted);
+
+
+        coinQty.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (charSequence != null && charSequence.length() > 0) {
+                    Float qty = Float.parseFloat(charSequence.toString());
+
+                    if (null != CoinPrice) {
+                        double convertedPrice = qty * CoinPrice;
+                        inputLayoutPrice.setHint(" " + format.format(CoinPrice));
+                        coinPriceConverted.setText(" " + format.format(convertedPrice));
+                    }
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
         initAds();
 
     }
 
     private void initAds() {
-
 
         MobileAds.initialize(this, new OnInitializationCompleteListener() {
             @Override
@@ -259,21 +300,25 @@ public class CoinDetailActivity extends AppCompatActivity {
             }
         });
 
-
     }
 
     private void setUpAds() {
         adView = new AdView(this);
-        adView.setAdUnitId(getString(R.string.adaptive_banner_ad_unit_id));
+        adView.setAdUnitId(getString(R.string.adaptive_banner_ad_unit_id_test));
         adContainerView.addView(adView);
-        //adContainerView2.addView(adView);
+
+        AdView adView = new AdView(this);
+
+        adView.setAdSize(AdSize.BANNER);
+
+        adView.setAdUnitId(getString(R.string.adaptive_banner_ad_unit_id_test));
+
         loadBanner();
     }
 
     private void loadBanner() {
-        adRequest =
-                new AdRequest.Builder()
-                        .build();
+        adRequest = new AdRequest.Builder().build();
+
 
         AdSize adSize = getAdSize();
         // Step 4 - Set the adaptive ad size on the ad view.
@@ -282,6 +327,11 @@ public class CoinDetailActivity extends AppCompatActivity {
 
         // Step 5 - Start loading the ad in the background.
         adView.loadAd(adRequest);
+
+
+        adRequest2 = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest2);
+
     }
 
     private AdSize getAdSize() {
@@ -302,16 +352,12 @@ public class CoinDetailActivity extends AppCompatActivity {
     private void getCoinDataById(String coin_id) {
 
 
-        final NumberFormat format = NumberFormat.getCurrencyInstance();
-        format.setMaximumFractionDigits(6);
-        format.setCurrency(Currency.getInstance(HomeScreen.CURRENCY));
-
-
         final Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.coingecko.com/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         RetrofitService uploadInterFace = retrofit.create(RetrofitService.class);
+        String change = "24h,7d,14d,30d,200d,1y";
         Call<List<CoinPrice>> call = uploadInterFace.getCoinPrice(HomeScreen.CURRENCY, coin_id, change);
         call.enqueue(new Callback<List<CoinPrice>>() {
             @Override
@@ -333,6 +379,7 @@ public class CoinDetailActivity extends AppCompatActivity {
                     ImageView imageView = (ImageView) findViewById(R.id.up_down_image);
                     TextView price = (TextView) findViewById(R.id.price);
                     float pri = list.get(0).getCurrent_price();
+                    CoinPrice = pri;
 
 
                     //set Price
@@ -365,6 +412,13 @@ public class CoinDetailActivity extends AppCompatActivity {
                     T_volume.setText(format.format(list.get(0).getTotal_volume()));
                     high24.setText(format.format(list.get(0).getHigh_24h()));
                     mName.setText(list.get(0).getName());
+
+                    inputLayout.setHint(list.get(0).getName());
+                    double convertedPrice = Float.parseFloat(coinQty.getText().toString()) * pri;
+
+                    inputLayoutPrice.setHint(" " + format.format(pri));
+                    coinPriceConverted.setText(" " + format.format(convertedPrice));
+
                     low24.setText(format.format(list.get(0).getLow_24h()));
                     available_total.setText(new DecimalFormat("###,###,###,###").format(list.get(0).getCirculating_supply()) + "/"
                             + new DecimalFormat("###,###,###,###").format(list.get(0).getTotal_supply()));
