@@ -436,18 +436,27 @@
             android:id="@+id/card_view_graph"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/group_choices"
             android:layout_margin="5dp"
             card_view:cardCornerRadius="4dp"
             card_view:cardElevation="3dp">
 
+
+            <com.highsoft.highcharts.core.HIChartView
+                android:id="@+id/chartView"
+                android:layout_width="match_parent"
+                android:layout_height="350dp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/chart"
                 android:layout_width="match_parent"
                 android:layout_height="275dp"
                 android:layout_marginTop="8dp"
-                android:focusableInTouchMode="true" />
+                android:focusableInTouchMode="true"
+                android:visibility="gone" />
 
         </androidx.cardview.widget.CardView>
 
