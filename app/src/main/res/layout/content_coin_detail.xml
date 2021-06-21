@@ -471,7 +471,6 @@
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/card_view_graph"
             android:layout_margin="5dp"
             card_view:cardCornerRadius="4dp"
             card_view:cardElevation="3dp">
@@ -780,9 +779,16 @@
             android:id="@+id/progress_bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="230dp"
-            android:elevation="5dp" />
+            android:elevation="5dp"
+            android:visibility="gone" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recCoinNews"
+            android:layout_width="match_parent"
+            android:layout_height="600dp"
+            android:nestedScrollingEnabled="true"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/coin_news" />
     </LinearLayout>
 
 </androidx.core.widget.NestedScrollView>

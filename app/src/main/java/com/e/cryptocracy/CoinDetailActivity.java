@@ -1,6 +1,6 @@
 package com.e.cryptocracy;
 
-import android.content.DialogInterface;
+import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
@@ -17,9 +17,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.anychart.chart.common.dataentry.DataEntry;
@@ -30,6 +30,10 @@ import com.e.cryptocracy.Model.CoinPrice;
 import com.e.cryptocracy.Model.Favourite;
 import com.e.cryptocracy.Model.GraphModel;
 import com.e.cryptocracy.Model.TickerModel;
+import com.e.cryptocracy.adapters.TweetAdapter;
+import com.e.cryptocracy.component.AppComponent;
+import com.e.cryptocracy.component.DaggerAppComponent;
+import com.e.cryptocracy.module.AppModule;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.data.Entry;
@@ -39,47 +43,25 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.initialization.InitializationStatus;
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.highsoft.highcharts.common.HIColor;
-import com.highsoft.highcharts.common.hichartsclasses.HICSSObject;
-import com.highsoft.highcharts.common.hichartsclasses.HIHover;
-import com.highsoft.highcharts.common.hichartsclasses.HILabel;
-import com.highsoft.highcharts.common.hichartsclasses.HILabels;
-import com.highsoft.highcharts.common.hichartsclasses.HIMarker;
-import com.highsoft.highcharts.common.hichartsclasses.HINavigation;
-import com.highsoft.highcharts.common.hichartsclasses.HIOptions;
-import com.highsoft.highcharts.common.hichartsclasses.HIPlotBands;
-import com.highsoft.highcharts.common.hichartsclasses.HIPlotOptions;
-import com.highsoft.highcharts.common.hichartsclasses.HISeries;
-import com.highsoft.highcharts.common.hichartsclasses.HISpline;
-import com.highsoft.highcharts.common.hichartsclasses.HIStates;
-import com.highsoft.highcharts.common.hichartsclasses.HISubtitle;
-import com.highsoft.highcharts.common.hichartsclasses.HITitle;
-import com.highsoft.highcharts.common.hichartsclasses.HITooltip;
-import com.highsoft.highcharts.common.hichartsclasses.HIXAxis;
-import com.highsoft.highcharts.common.hichartsclasses.HIYAxis;
-import com.highsoft.highcharts.core.HIChartView;
 import com.marcoscg.dialogsheet.DialogSheet;
 import com.nex3z.togglebuttongroup.SingleSelectToggleGroup;
 import com.squareup.picasso.Picasso;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Currency;
-import java.util.Date;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import retrofit2.Call;
@@ -108,6 +90,12 @@ public class CoinDetailActivity extends AppCompatActivity {
     CollectionReference favRef;
     CircleImageView mProfileImage;
 
+    @Inject
+    AppViewModel viewModel;
+
+
+    TweetAdapter tweetAdapter;
+
 
     //Add
     FrameLayout adContainerView, adContainerView2;
@@ -120,9 +108,11 @@ public class CoinDetailActivity extends AppCompatActivity {
     Float CoinPrice;
     NumberFormat format;
 
-    HIChartView chartView;
-    HIOptions options = new HIOptions();
+    RecyclerView tweetRec;
 
+    AppComponent appComponent;
+
+    @SuppressLint("NonConstantResourceId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -131,14 +121,12 @@ public class CoinDetailActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
 
-        chartView = findViewById(R.id.chartView);
-        chartView.theme = "sand-signika";
-
         db = FirebaseFirestore.getInstance();
 
 
         findViews();
         if (getIntent().hasExtra("coin_id")) {
+            initDependency();
             COIN_ID = getIntent().getStringExtra("coin_id");
             String DAYS = "1";
             setToolbar(toolbar);
@@ -146,51 +134,64 @@ public class CoinDetailActivity extends AppCompatActivity {
             setGraphView(DAYS, COIN_ID);
             bottomDialog();
             setFavIcon(COIN_ID);
-            initSpLineWithPlotBandsChart();
+
+
+            tweetAdapter = new TweetAdapter();
+            tweetRec.setHasFixedSize(true);
+            tweetRec.setAdapter(tweetAdapter);
+
+            String coinName = getIntent().getStringExtra("coinName");
+            String coinSymbol = getIntent().getStringExtra("coinSymbol");
+            Log.d(TAG, "onCreate: " + tweetAdapter.getItemCount());
+
+            String str = "doge-dogecoin".trim();
+            viewModel.tweetList(str).observe(this, tweetModels -> {
+                Log.d(TAG, "onCreate: tweetModels " + tweetModels.size());
+                tweetAdapter.submitList(tweetModels);
+            });
+
         } else {
             finish();
         }
 
 
-        SingleSelectToggleGroup single = (SingleSelectToggleGroup) findViewById(R.id.group_choices);
-        single.setOnCheckedChangeListener(new SingleSelectToggleGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(SingleSelectToggleGroup group, int checkedId) {
+        SingleSelectToggleGroup single = findViewById(R.id.group_choices);
+        single.setOnCheckedChangeListener((group, checkedId) -> {
 
-                switch (checkedId) {
-                    case R.id.choice_24h:
-                        setGraphView("1", COIN_ID);
-                        break;
-                    case R.id.choice_1w:
-                        setGraphView("7", COIN_ID);
-                        break;
-                    case R.id.choice_1m:
-                        setGraphView("30", COIN_ID);
-                        break;
-                    case R.id.choice_3m:
-                        setGraphView("90", COIN_ID);
-                        break;
-                    case R.id.choice_6m:
-                        setGraphView("180", COIN_ID);
-                        break;
-                    case R.id.choice_1y:
-                        setGraphView("360", COIN_ID);
-                        break;
+            switch (checkedId) {
+                case R.id.choice_24h:
+                    setGraphView("1", COIN_ID);
+                    break;
+                case R.id.choice_1w:
+                    setGraphView("7", COIN_ID);
+                    break;
+                case R.id.choice_1m:
+                    setGraphView("30", COIN_ID);
+                    break;
+                case R.id.choice_3m:
+                    setGraphView("90", COIN_ID);
+                    break;
+                case R.id.choice_6m:
+                    setGraphView("180", COIN_ID);
+                    break;
+                case R.id.choice_1y:
+                    setGraphView("360", COIN_ID);
+                    break;
 
-                    case R.id.choice_max:
-                        setGraphView("max", COIN_ID);
-                        break;
-                }
+                case R.id.choice_max:
+                    setGraphView("max", COIN_ID);
+                    break;
             }
         });
 
-        favCoinImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updateFavCoin(COIN_ID);
-            }
-        });
+        favCoinImage.setOnClickListener(view -> updateFavCoin(COIN_ID));
 
+    }
+
+
+    private void initDependency() {
+        appComponent = DaggerAppComponent.builder().appModule(new AppModule("")).build();
+        appComponent.inject(this);
     }
 
     private void setFavIcon(String coinId) {
@@ -199,15 +200,12 @@ public class CoinDetailActivity extends AppCompatActivity {
                 .collection("Favourite");
         favRef.document(coinId)
                 .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            if (task.getResult().exists()) {
-                                favCoinImage.setImageResource(R.drawable.ic_star_filled);
-                            } else {
-                                favCoinImage.setImageResource(R.drawable.ic_star_border_black_24dp);
-                            }
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        if (task.getResult().exists()) {
+                            favCoinImage.setImageResource(R.drawable.ic_star_filled);
+                        } else {
+                            favCoinImage.setImageResource(R.drawable.ic_star_border_black_24dp);
                         }
                     }
                 });
@@ -221,30 +219,17 @@ public class CoinDetailActivity extends AppCompatActivity {
                 .collection("Favourite");
         favRef.document(coinId)
                 .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            if (task.getResult().exists()) {
-                                favCoinImage.setImageResource(R.drawable.ic_star_border_black_24dp);
-                                favRef.document(coinId)
-                                        .delete().addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        favCoinImage.setImageResource(R.drawable.ic_star_filled);
-                                    }
-                                });
-                            } else {
-                                favCoinImage.setImageResource(R.drawable.ic_star_filled);
-                                favRef.document(coinId)
-                                        .set(new Favourite(coinId))
-                                        .addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                favCoinImage.setImageResource(R.drawable.ic_star_border_black_24dp);
-                                            }
-                                        });
-                            }
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        if (task.getResult().exists()) {
+                            favCoinImage.setImageResource(R.drawable.ic_star_border_black_24dp);
+                            favRef.document(coinId)
+                                    .delete().addOnFailureListener(e -> favCoinImage.setImageResource(R.drawable.ic_star_filled));
+                        } else {
+                            favCoinImage.setImageResource(R.drawable.ic_star_filled);
+                            favRef.document(coinId)
+                                    .set(new Favourite(coinId))
+                                    .addOnFailureListener(e -> favCoinImage.setImageResource(R.drawable.ic_star_border_black_24dp));
                         }
                     }
                 });
@@ -252,27 +237,27 @@ public class CoinDetailActivity extends AppCompatActivity {
     }
 
     private void findViews() {
-        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
-        market_cap_rank = (TextView) findViewById(R.id.price_m_cap_rank);
-        market_cap = (TextView) findViewById(R.id.price_cap_rank);
-        T_volume = (TextView) findViewById(R.id.country);
-        high24 = (TextView) findViewById(R.id.description);
-        low24 = (TextView) findViewById(R.id.has_trading_incentive);
-        available_total = (TextView) findViewById(R.id.trade_volume_24h_btc_normalized);
-        allTime_high = (TextView) findViewById(R.id.telegram_channel_user_count);
-        since_allTimeHigh = (TextView) findViewById(R.id.coingecko_rank);
-        mName = (TextView) findViewById(R.id.coin_name);
-        allTimeHighDate = (TextView) findViewById(R.id.country_origin);
-        favCoinImage = (ImageView) findViewById(R.id.favourite_icon_1);
+        progressBar = findViewById(R.id.progress_bar);
+        market_cap_rank = findViewById(R.id.price_m_cap_rank);
+        market_cap = findViewById(R.id.price_cap_rank);
+        T_volume = findViewById(R.id.country);
+        high24 = findViewById(R.id.description);
+        low24 = findViewById(R.id.has_trading_incentive);
+        available_total = findViewById(R.id.trade_volume_24h_btc_normalized);
+        allTime_high = findViewById(R.id.telegram_channel_user_count);
+        since_allTimeHigh = findViewById(R.id.coingecko_rank);
+        mName = findViewById(R.id.coin_name);
+        allTimeHighDate = findViewById(R.id.country_origin);
+        favCoinImage = findViewById(R.id.favourite_icon_1);
 
-        H24 = (TextView) findViewById(R.id.price_h24);
-        D7 = (TextView) findViewById(R.id.price_d7);
-        D14 = (TextView) findViewById(R.id.price_d14);
-        D30 = (TextView) findViewById(R.id.price_d30);
+        H24 = findViewById(R.id.price_h24);
+        D7 = findViewById(R.id.price_d7);
+        D14 = findViewById(R.id.price_d14);
+        D30 = findViewById(R.id.price_d30);
         D200 = findViewById(R.id.price_d200);
-        Y1 = (TextView) findViewById(R.id.price_y1);
+        Y1 = findViewById(R.id.price_y1);
 
-        mProfileImage = (CircleImageView) findViewById(R.id.profile_image);
+        mProfileImage = findViewById(R.id.profile_image);
         adContainerView = findViewById(R.id.ad_view_container2);
         adContainerView2 = findViewById(R.id.ad_view_container3);
 
@@ -286,6 +271,7 @@ public class CoinDetailActivity extends AppCompatActivity {
         inputLayoutPrice = findViewById(R.id.textInputLayPrice);
         coinQty = findViewById(R.id.etCoinQty);
         coinPriceConverted = findViewById(R.id.textPriceConverted);
+        tweetRec = findViewById(R.id.recCoinNews);
 
 
         coinQty.addTextChangedListener(new TextWatcher() {
@@ -318,12 +304,9 @@ public class CoinDetailActivity extends AppCompatActivity {
 
     private void initAds() {
 
-        MobileAds.initialize(this, new OnInitializationCompleteListener() {
-            @Override
-            public void onInitializationComplete(InitializationStatus initializationStatus) {
-                Log.d(TAG, "onInitializationComplete: ");
-                setUpAds();
-            }
+        MobileAds.initialize(this, initializationStatus -> {
+            Log.d(TAG, "onInitializationComplete: ");
+            setUpAds();
         });
 
     }
@@ -387,7 +370,7 @@ public class CoinDetailActivity extends AppCompatActivity {
         Call<List<CoinPrice>> call = uploadInterFace.getCoinPrice(HomeScreen.CURRENCY, coin_id, change);
         call.enqueue(new Callback<List<CoinPrice>>() {
             @Override
-            public void onResponse(Call<List<CoinPrice>> call, Response<List<CoinPrice>> response) {
+            public void onResponse(@NotNull Call<List<CoinPrice>> call, @NotNull Response<List<CoinPrice>> response) {
                 if (!response.isSuccessful()) {
                     progressBar.setVisibility(View.GONE);
                     Toast.makeText(CoinDetailActivity.this, "failed: " + response.errorBody(), Toast.LENGTH_SHORT).show();
@@ -402,8 +385,8 @@ public class CoinDetailActivity extends AppCompatActivity {
                         Picasso.with(CoinDetailActivity.this).load(imageUrl).into(mProfileImage);
                     }
                     mCoinName.setText(list.get(0).getSymbol());
-                    ImageView imageView = (ImageView) findViewById(R.id.up_down_image);
-                    TextView price = (TextView) findViewById(R.id.price);
+                    ImageView imageView = findViewById(R.id.up_down_image);
+                    TextView price = findViewById(R.id.price);
                     float pri = list.get(0).getCurrent_price();
                     CoinPrice = pri;
 
@@ -418,7 +401,7 @@ public class CoinDetailActivity extends AppCompatActivity {
 
 
                     //set Price Percentage
-                    TextView price_percentage = (TextView) findViewById(R.id.change_percentage);
+                    TextView price_percentage = findViewById(R.id.change_percentage);
                     float pri_percentage = list.get(0).getPrice_change_percentage_24h();
                     price_percentage.setText(pri_percentage + "%");
                     if (pri_percentage > 0) {
@@ -475,7 +458,7 @@ public class CoinDetailActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<List<CoinPrice>> call, Throwable t) {
+            public void onFailure(@NotNull Call<List<CoinPrice>> call, @NotNull Throwable t) {
                 Toast.makeText(CoinDetailActivity.this, "error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 progressBar.setVisibility(View.GONE);
 
@@ -501,7 +484,7 @@ public class CoinDetailActivity extends AppCompatActivity {
         Call<GraphModel> call = GraphData.getGraphData(COIN_ID, HomeScreen.CURRENCY, DAYS);
         call.enqueue(new Callback<GraphModel>() {
             @Override
-            public void onResponse(Call<GraphModel> call, Response<GraphModel> response) {
+            public void onResponse(@NotNull Call<GraphModel> call, @NotNull Response<GraphModel> response) {
                 progressBar.setVisibility(View.GONE);
                 if (response.isSuccessful()) {
                     if (response.body() != null) {
@@ -509,7 +492,6 @@ public class CoinDetailActivity extends AppCompatActivity {
                             seriesData.clear();
                         GraphModel graphData = response.body();
                         loadChart(graphData);
-                        setChartValue(graphData);
 
                     } else {
                         Toast.makeText(CoinDetailActivity.this, "no data ", Toast.LENGTH_SHORT).show();
@@ -521,7 +503,7 @@ public class CoinDetailActivity extends AppCompatActivity {
 
 
             @Override
-            public void onFailure(Call<GraphModel> call, Throwable t) {
+            public void onFailure(@NotNull Call<GraphModel> call, @NotNull Throwable t) {
                 progressBar.setVisibility(View.GONE);
                 Log.e(TAG, "read error in graph data: " + t.getLocalizedMessage());
                 Toast.makeText(CoinDetailActivity.this, "try again " + t.getMessage(), Toast.LENGTH_SHORT).show();
@@ -531,145 +513,8 @@ public class CoinDetailActivity extends AppCompatActivity {
 
     }
 
-    private void initSpLineWithPlotBandsChart() {
-        chartView.plugins = new ArrayList<>(Arrays.asList("series-label"));
-        HITitle title = new HITitle();
-        title.setText("Wind speed during two days");
-        options.setTitle(title);
-
-        HISubtitle subtitle = new HISubtitle();
-        subtitle.setText("May 31 and and June 1, 2015 at two locations in Vik i Sogn, Norway");
-        options.setSubtitle(subtitle);
-
-        final HIXAxis xAxis = new HIXAxis();
-        xAxis.setType("datetime");
-        xAxis.setLabels(new HILabels());
-        xAxis.getLabels().setOverflow("justify");
-        options.setXAxis(new ArrayList<HIXAxis>() {{
-            add(xAxis);
-        }});
-
-        final HIYAxis yAxis = new HIYAxis();
-        yAxis.setTitle(new HITitle());
-        yAxis.getTitle().setText("Wind speed (m/s)");
-        yAxis.setMinorGridLineWidth(0);
-        yAxis.setGridLineWidth(0);
-        yAxis.setAlternateGridColor(null);
-
-        HIPlotBands plotBands1 = new HIPlotBands();
-        plotBands1.setFrom(0.3);
-        plotBands1.setTo(1.5);
-        plotBands1.setColor(HIColor.initWithRGBA(68, 170, 213, 0.1));
-        plotBands1.setLabel(new HILabel());
-        plotBands1.getLabel().setText("Light air");
-        plotBands1.getLabel().setStyle(new HICSSObject());
-        plotBands1.getLabel().getStyle().setColor("606060");
-
-        HIPlotBands plotBands2 = new HIPlotBands();
-        plotBands2.setFrom(1.5);
-        plotBands2.setTo(3.3);
-        plotBands2.setColor(HIColor.initWithRGBA(0, 0, 0, 0));
-        plotBands2.setLabel(new HILabel());
-        plotBands2.getLabel().setText("Light breeze");
-        plotBands2.getLabel().setStyle(new HICSSObject());
-        plotBands2.getLabel().getStyle().setColor("#606060");
-
-        HIPlotBands plotBands3 = new HIPlotBands();
-        plotBands3.setFrom(3.3);
-        plotBands3.setTo(5.5);
-        plotBands3.setColor(HIColor.initWithRGBA(68, 170, 213, 0.1));
-        plotBands3.setLabel(new HILabel());
-        plotBands3.getLabel().setText("Gentle breeze");
-        plotBands3.getLabel().setStyle(new HICSSObject());
-        plotBands3.getLabel().getStyle().setColor("#606060");
-
-        HIPlotBands plotBands4 = new HIPlotBands();
-        plotBands4.setFrom(5.5);
-        plotBands4.setTo(8);
-        plotBands4.setColor(HIColor.initWithRGBA(0, 0, 0, 0));
-        plotBands4.setLabel(new HILabel());
-        plotBands4.getLabel().setText("Moderate breeze");
-        plotBands4.getLabel().setStyle(new HICSSObject());
-        plotBands4.getLabel().getStyle().setColor("#606060");
-
-        HIPlotBands plotBands5 = new HIPlotBands();
-        plotBands5.setFrom(8);
-        plotBands5.setTo(11);
-        plotBands5.setColor(HIColor.initWithRGBA(68, 170, 213, 0.1));
-        plotBands5.setLabel(new HILabel());
-        plotBands5.getLabel().setText("Fresh breeze");
-        plotBands5.getLabel().setStyle(new HICSSObject());
-        plotBands5.getLabel().getStyle().setColor("#606060");
-
-        HIPlotBands plotBands6 = new HIPlotBands();
-        plotBands6.setFrom(11);
-        plotBands6.setTo(14);
-        plotBands6.setColor(HIColor.initWithRGBA(0, 0, 0, 0));
-        plotBands6.setLabel(new HILabel());
-        plotBands6.getLabel().setText("Strong breeze");
-        plotBands6.getLabel().setStyle(new HICSSObject());
-        plotBands6.getLabel().getStyle().setColor("#606060");
-
-        HIPlotBands plotBands7 = new HIPlotBands();
-        plotBands7.setFrom(14);
-        plotBands7.setTo(15);
-        plotBands7.setColor(HIColor.initWithRGBA(68, 170, 213, 0.1));
-        plotBands6.setLabel(new HILabel());
-        plotBands6.getLabel().setText("High wind");
-        plotBands6.getLabel().setStyle(new HICSSObject());
-        plotBands6.getLabel().getStyle().setColor("#606060");
-
-        HIPlotBands[] plotBandsList = new HIPlotBands[]{plotBands1, plotBands2, plotBands3, plotBands4, plotBands5, plotBands6, plotBands7};
-        yAxis.setPlotBands(new ArrayList<>(Arrays.asList(plotBandsList)));
-        options.setYAxis(new ArrayList<HIYAxis>() {{
-            add(yAxis);
-        }});
-
-        HITooltip tooltip = new HITooltip();
-        tooltip.setValueSuffix(" m/s");
-        options.setTooltip(tooltip);
-
-        HIPlotOptions plotOptions = new HIPlotOptions();
-        plotOptions.setSpline(new HISpline());
-        plotOptions.getSpline().setLineWidth(4);
-        plotOptions.getSpline().setStates(new HIStates());
-        plotOptions.getSpline().getStates().setHover(new HIHover());
-        plotOptions.getSpline().getStates().getHover().setLineWidth(5);
-        plotOptions.getSpline().setMarker(new HIMarker());
-        plotOptions.getSpline().getMarker().setEnabled(false);
-        plotOptions.getSpline().setPointInterval(3600000);
-        plotOptions.getSpline().setPointStart(Date.UTC(2015, 6, 31, 0, 0, 0));
-        options.setPlotOptions(plotOptions);
-        //options.setSeries(new ArrayList<>(Arrays.asList(series1)));
-
-        HINavigation navigation = new HINavigation();
-        navigation.setMenuItemStyle(new HICSSObject());
-        navigation.getMenuItemStyle().setFontSize("8px");
-        options.setNavigation(navigation);
-
-        chartView.setOptions(options);
-    }
-
-    private void setChartValue(GraphModel graphData) {
-        HISeries series1 = new HISeries();
-        series1.setName("Hestavollane");
-        Number[] series1_data = new Number[]{0.2, 0.8, 0.8, 0.8, 1, 1.3, 1.5, 2.9, 1.9, 2.6, 1.6, 3, 4, 3.6, 4.5, 4.2, 4.5, 4.5, 4, 3.1, 2.7, 4, 2.7, 2.3, 2.3, 4.1, 7.7, 7.1, 5.6, 6.1, 5.8, 8.6, 7.2, 9, 10.9, 11.5, 11.6, 11.1, 12, 12.3, 10.7, 9.4, 9.8, 9.6, 9.8, 9.5, 8.5, 7.4, 7.6};
-        series1.setData(new ArrayList<>(Arrays.asList(series1_data)));
-
-        HISeries series2 = new HISeries();
-        series2.setName("Vik");
-        Number[] series2_data = new Number[]{0, 0, 0.6, 0.9, 0.8, 0.2, 0, 0, 0, 0.1, 0.6, 0.7, 0.8, 0.6, 0.2, 0, 0.1, 0.3, 0.3, 0, 0.1, 0, 0, 0, 0.2, 0.1, 0, 0.3, 0, 0.1, 0.2, 0.1, 0.3, 0.3, 0, 3.1, 3.1, 2.5, 1.5, 1.9, 2.1, 1, 2.3, 1.9, 1.2, 0.7, 1.3, 0.4, 0.3};
-        series2.setData(new ArrayList<>(Arrays.asList(series2_data)));
-
-        options.setSeries(new ArrayList<>(Arrays.asList(series1, series2)));
-
-        chartView.redraw();
-        Toast.makeText(this, "Added!! " , Toast.LENGTH_SHORT).show();
-    }
-
-
     private void loadChart(GraphModel graphData) {
-        LineChart chart = (LineChart) findViewById(R.id.chart);
+        LineChart chart = findViewById(R.id.chart);
         List<Entry> entries = new ArrayList<Entry>();
         try {
             for (int a = 0; a < graphData.getPrices().size(); a++) {
@@ -715,8 +560,8 @@ public class CoinDetailActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-        pair = (TextView) toolbar.findViewById(R.id.pairing);
-        mCoinName = (TextView) toolbar.findViewById(R.id.name_coin);
+        pair = toolbar.findViewById(R.id.pairing);
+        mCoinName = toolbar.findViewById(R.id.name_coin);
 
         pair.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -736,17 +581,15 @@ public class CoinDetailActivity extends AppCompatActivity {
         View view = inflater.inflate(R.layout.coin_pair_recycler_layout, null);
 
         recyclerView = view.findViewById(R.id.pair_rec);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         loadPairData();
 
         dialogSheet.setTitle("Market")
                 .setTitleTextSize(20) // In SP
                 .setCancelable(true)
                 .setView(view)
-                .setPositiveButton("Dismiss", new DialogSheet.OnPositiveClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // Your action
-                    }
+                .setPositiveButton("Dismiss", v -> {
+                    // Your action
                 })
                 .setBackgroundColor(Color.BLACK) // Your custom background color
                 .setButtonsColorRes(R.color.colorAccent);// ;You can use dialogSheetAccent style attribute instead
@@ -756,12 +599,7 @@ public class CoinDetailActivity extends AppCompatActivity {
         dialogSheet.setButtonsColorRes(R.color.dark_grey);
 
 
-        dialogSheet.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialogInterface) {
-                progressBar.setVisibility(View.GONE);
-            }
-        });
+        dialogSheet.setOnDismissListener(dialogInterface -> progressBar.setVisibility(View.GONE));
 
     }
 
