@@ -56,9 +56,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-/**
- * A simple {@link Fragment} subclass.
- */
+
 @SuppressLint("ValidFragment")
 public class FavouriteFragment extends Fragment {
     Context context;
@@ -310,13 +308,13 @@ public class FavouriteFragment extends Fragment {
                 Picasso.with(context).load(image_url).into(myViewHolder.coinIcon);
             }
 
-            myViewHolder.layout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    String coinId = coinList.get(position).getId();
-                    context.startActivity(new Intent(context, CoinDetailActivity.class)
-                            .putExtra("coin_id", coinId));
-                }
+            myViewHolder.layout.setOnClickListener(view -> {
+                String coinId = coinList.get(position).getId();
+                context.startActivity(new Intent(context, CoinDetailActivity.class)
+                        .putExtra("coin_id", coinId)
+                        .putExtra("coinName", coinList.get(position).getName())
+                        .putExtra("coinSymbol", coinList.get(position).getSymbol())
+                );
             });
 
             myViewHolder.favIcon.setOnClickListener(new View.OnClickListener() {

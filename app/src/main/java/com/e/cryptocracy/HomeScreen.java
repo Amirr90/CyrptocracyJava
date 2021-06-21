@@ -17,13 +17,17 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
 import androidx.viewpager.widget.ViewPager;
 
 import com.e.cryptocracy.Adapter.ViewPagerAdapter;
 import com.e.cryptocracy.Fragments.CoinFragment;
 import com.e.cryptocracy.Fragments.ExchangeFragment;
 import com.e.cryptocracy.Fragments.FavouriteFragment;
+import com.e.cryptocracy.adapters.TweetAdapter;
+import com.e.cryptocracy.component.AppComponent;
 import com.e.cryptocracy.interfaces.onLoadMoreInterface;
+import com.e.cryptocracy.models.TweetModel;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
@@ -40,7 +44,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import javax.inject.Inject;
 
 public class HomeScreen extends AppCompatActivity {
     static public TextView titleText;
@@ -62,6 +69,9 @@ public class HomeScreen extends AppCompatActivity {
     AdView adView;
     AdRequest adRequest;
 
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,14 +80,14 @@ public class HomeScreen extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
 
-        appBarLayout = (AppBarLayout) findViewById(R.id.app_bar);
-        mChangeCurrencyText = (TextView) appBarLayout.findViewById(R.id.change_currency);
-        mFilterIcon = (ImageView) appBarLayout.findViewById(R.id.filter_icon);
-        mSettingsIcon = (ImageView) appBarLayout.findViewById(R.id.setting);
-        mSearchIcon = (ImageView) appBarLayout.findViewById(R.id.search_icon);
-        titleText = (TextView) findViewById(R.id.title_text);
-        mLoadingLayout = (RelativeLayout) findViewById(R.id.loading_layout);
-        mDataLayout = (RelativeLayout) findViewById(R.id.data_layout);
+        appBarLayout = findViewById(R.id.app_bar);
+        mChangeCurrencyText = appBarLayout.findViewById(R.id.change_currency);
+        mFilterIcon = appBarLayout.findViewById(R.id.filter_icon);
+        mSettingsIcon = appBarLayout.findViewById(R.id.setting);
+        mSearchIcon = appBarLayout.findViewById(R.id.search_icon);
+        titleText = findViewById(R.id.title_text);
+        mLoadingLayout = findViewById(R.id.loading_layout);
+        mDataLayout = findViewById(R.id.data_layout);
         adContainerView = findViewById(R.id.ad_view_container);
 
         adView = new AdView(this);
@@ -88,6 +98,8 @@ public class HomeScreen extends AppCompatActivity {
         setCurrencyText();
 
         setFragment();
+
+
 
         mChangeCurrencyText.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -173,29 +185,20 @@ public class HomeScreen extends AppCompatActivity {
 
         // Set the dialog title
         builder.setTitle("Choose One")
-                .setSingleChoiceItems(items_toShow, SELECTED_ITEM, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface arg0, int arg1) {
-                    }
+                .setSingleChoiceItems(items_toShow, SELECTED_ITEM, (arg0, arg1) -> {
                 })
-                .setPositiveButton("CHANGE", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        int selectedPosition = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
-                        SORT_ORDER = items[selectedPosition];
-                        CURRENT_PAGE = 1;
-                        SELECTED_ITEM = selectedPosition;
-                        String FIELD = "sort_order";
-                        changeToDatabase(SORT_ORDER, FIELD);
-                    }
+                .setPositiveButton("CHANGE", (dialog, id) -> {
+                    int selectedPosition = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
+                    SORT_ORDER = items[selectedPosition];
+                    CURRENT_PAGE = 1;
+                    SELECTED_ITEM = selectedPosition;
+                    String FIELD = "sort_order";
+                    changeToDatabase(SORT_ORDER, FIELD);
                 })
 
-                .setNegativeButton("CLEAR ALL", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        // removes the dialog from the screen
+                .setNegativeButton("CLEAR ALL", (dialog, id) -> {
+                    // removes the dialog from the screen
 
-                    }
                 })
 
                 .show();
@@ -210,24 +213,21 @@ public class HomeScreen extends AppCompatActivity {
         db.collection("users")
                 .document(auth.getCurrentUser().getUid())
                 .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            if (task.getResult().exists()) {
-                                DocumentSnapshot snapshot = task.getResult();
-                                CURRENCY = snapshot.getString("currency");
-                                //SORT_ORDER = snapshot.getString( "sort_order" );
-                                Log.d(TAG, "onComplete: " + CURRENCY);
-                                Log.d(TAG, "uid: " + auth.getCurrentUser().getUid());
-                                if (CURRENCY != null)
-                                    mChangeCurrencyText.setText(CURRENCY.toUpperCase());
-                            } else {
-                                db.collection("users")
-                                        .document(auth.getCurrentUser().getUid())
-                                        .set(map);
-                                mChangeCurrencyText.setText(R.string.inr);
-                            }
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        if (task.getResult().exists()) {
+                            DocumentSnapshot snapshot = task.getResult();
+                            CURRENCY = snapshot.getString("currency");
+                            //SORT_ORDER = snapshot.getString( "sort_order" );
+                            Log.d(TAG, "onComplete: " + CURRENCY);
+                            Log.d(TAG, "uid: " + auth.getCurrentUser().getUid());
+                            if (CURRENCY != null)
+                                mChangeCurrencyText.setText(CURRENCY.toUpperCase());
+                        } else {
+                            db.collection("users")
+                                    .document(auth.getCurrentUser().getUid())
+                                    .set(map);
+                            mChangeCurrencyText.setText(R.string.inr);
                         }
                     }
                 });
@@ -239,16 +239,14 @@ public class HomeScreen extends AppCompatActivity {
         final String[] items = getResources().getStringArray(R.array.currency_array);
         AlertDialog.Builder builder = new AlertDialog.Builder(HomeScreen.this);
         builder.setTitle("Select your currency");
-        builder.setItems(items, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int item) {
-                CURRENCY = items[item].toLowerCase();
-                CURRENT_PAGE = 1;
-                mChangeCurrencyText.setText(CURRENCY.toUpperCase());
-                String FIELD = "currency";
-                changeToDatabase(CURRENCY, FIELD);
-                dialog.dismiss();
+        builder.setItems(items, (dialog, item) -> {
+            CURRENCY = items[item].toLowerCase();
+            CURRENT_PAGE = 1;
+            mChangeCurrencyText.setText(CURRENCY.toUpperCase());
+            String FIELD = "currency";
+            changeToDatabase(CURRENCY, FIELD);
+            dialog.dismiss();
 
-            }
         }).show();
     }
 
@@ -260,15 +258,12 @@ public class HomeScreen extends AppCompatActivity {
             db.collection("users")
                     .document(auth.getCurrentUser().getUid())
                     .update(updateCurrencyMap)
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()) {
-                            } else {
-                                showLoadingLayout(false);
-                                Log.d(TAG, "ChangeCurrencyListner: " + task.getException());
-                                Toast.makeText(HomeScreen.this, "please try again", Toast.LENGTH_SHORT).show();
-                            }
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                        } else {
+                            showLoadingLayout(false);
+                            Log.d(TAG, "ChangeCurrencyListner: " + task.getException());
+                            Toast.makeText(HomeScreen.this, "please try again", Toast.LENGTH_SHORT).show();
                         }
                     });
         }
@@ -276,8 +271,8 @@ public class HomeScreen extends AppCompatActivity {
     }
 
     private void setFragment() {
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-        ViewPager pager = (ViewPager) findViewById(R.id.view_pager);
+        TabLayout tabLayout = findViewById(R.id.tabs);
+        ViewPager pager = findViewById(R.id.view_pager);
         ViewPagerAdapter pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         pagerAdapter.Addfragment(new CoinFragment(HomeScreen.this, onLoadMoreInterface), "Market");
         pagerAdapter.Addfragment(new FavouriteFragment(HomeScreen.this,onLoadMoreInterface), "Favourite");

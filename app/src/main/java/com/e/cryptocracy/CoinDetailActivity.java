@@ -1,6 +1,6 @@
 package com.e.cryptocracy;
 
-import android.content.DialogInterface;
+import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
@@ -17,7 +17,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -31,6 +30,10 @@ import com.e.cryptocracy.Model.CoinPrice;
 import com.e.cryptocracy.Model.Favourite;
 import com.e.cryptocracy.Model.GraphModel;
 import com.e.cryptocracy.Model.TickerModel;
+import com.e.cryptocracy.adapters.TweetAdapter;
+import com.e.cryptocracy.component.AppComponent;
+import com.e.cryptocracy.component.DaggerAppComponent;
+import com.e.cryptocracy.module.AppModule;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.data.Entry;
@@ -40,20 +43,16 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.initialization.InitializationStatus;
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.marcoscg.dialogsheet.DialogSheet;
 import com.nex3z.togglebuttongroup.SingleSelectToggleGroup;
 import com.squareup.picasso.Picasso;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -61,6 +60,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Currency;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import retrofit2.Call;
@@ -89,6 +90,12 @@ public class CoinDetailActivity extends AppCompatActivity {
     CollectionReference favRef;
     CircleImageView mProfileImage;
 
+    @Inject
+    AppViewModel viewModel;
+
+
+    TweetAdapter tweetAdapter;
+
 
     //Add
     FrameLayout adContainerView, adContainerView2;
@@ -101,6 +108,11 @@ public class CoinDetailActivity extends AppCompatActivity {
     Float CoinPrice;
     NumberFormat format;
 
+    RecyclerView tweetRec;
+
+    AppComponent appComponent;
+
+    @SuppressLint("NonConstantResourceId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -114,6 +126,7 @@ public class CoinDetailActivity extends AppCompatActivity {
 
         findViews();
         if (getIntent().hasExtra("coin_id")) {
+            initDependency();
             COIN_ID = getIntent().getStringExtra("coin_id");
             String DAYS = "1";
             setToolbar(toolbar);
@@ -121,50 +134,64 @@ public class CoinDetailActivity extends AppCompatActivity {
             setGraphView(DAYS, COIN_ID);
             bottomDialog();
             setFavIcon(COIN_ID);
+
+
+            tweetAdapter = new TweetAdapter();
+            tweetRec.setHasFixedSize(true);
+            tweetRec.setAdapter(tweetAdapter);
+
+            String coinName = getIntent().getStringExtra("coinName");
+            String coinSymbol = getIntent().getStringExtra("coinSymbol");
+            Log.d(TAG, "onCreate: " + tweetAdapter.getItemCount());
+
+            String str = "doge-dogecoin".trim();
+            viewModel.tweetList(str).observe(this, tweetModels -> {
+                Log.d(TAG, "onCreate: tweetModels " + tweetModels.size());
+                tweetAdapter.submitList(tweetModels);
+            });
+
         } else {
             finish();
         }
 
 
-        SingleSelectToggleGroup single = (SingleSelectToggleGroup) findViewById(R.id.group_choices);
-        single.setOnCheckedChangeListener(new SingleSelectToggleGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(SingleSelectToggleGroup group, int checkedId) {
+        SingleSelectToggleGroup single = findViewById(R.id.group_choices);
+        single.setOnCheckedChangeListener((group, checkedId) -> {
 
-                switch (checkedId) {
-                    case R.id.choice_24h:
-                        setGraphView("1", COIN_ID);
-                        break;
-                    case R.id.choice_1w:
-                        setGraphView("7", COIN_ID);
-                        break;
-                    case R.id.choice_1m:
-                        setGraphView("30", COIN_ID);
-                        break;
-                    case R.id.choice_3m:
-                        setGraphView("90", COIN_ID);
-                        break;
-                    case R.id.choice_6m:
-                        setGraphView("180", COIN_ID);
-                        break;
-                    case R.id.choice_1y:
-                        setGraphView("360", COIN_ID);
-                        break;
+            switch (checkedId) {
+                case R.id.choice_24h:
+                    setGraphView("1", COIN_ID);
+                    break;
+                case R.id.choice_1w:
+                    setGraphView("7", COIN_ID);
+                    break;
+                case R.id.choice_1m:
+                    setGraphView("30", COIN_ID);
+                    break;
+                case R.id.choice_3m:
+                    setGraphView("90", COIN_ID);
+                    break;
+                case R.id.choice_6m:
+                    setGraphView("180", COIN_ID);
+                    break;
+                case R.id.choice_1y:
+                    setGraphView("360", COIN_ID);
+                    break;
 
-                    case R.id.choice_max:
-                        setGraphView("max", COIN_ID);
-                        break;
-                }
+                case R.id.choice_max:
+                    setGraphView("max", COIN_ID);
+                    break;
             }
         });
 
-        favCoinImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updateFavCoin(COIN_ID);
-            }
-        });
+        favCoinImage.setOnClickListener(view -> updateFavCoin(COIN_ID));
 
+    }
+
+
+    private void initDependency() {
+        appComponent = DaggerAppComponent.builder().appModule(new AppModule("")).build();
+        appComponent.inject(this);
     }
 
     private void setFavIcon(String coinId) {
@@ -173,15 +200,12 @@ public class CoinDetailActivity extends AppCompatActivity {
                 .collection("Favourite");
         favRef.document(coinId)
                 .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            if (task.getResult().exists()) {
-                                favCoinImage.setImageResource(R.drawable.ic_star_filled);
-                            } else {
-                                favCoinImage.setImageResource(R.drawable.ic_star_border_black_24dp);
-                            }
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        if (task.getResult().exists()) {
+                            favCoinImage.setImageResource(R.drawable.ic_star_filled);
+                        } else {
+                            favCoinImage.setImageResource(R.drawable.ic_star_border_black_24dp);
                         }
                     }
                 });
@@ -195,30 +219,17 @@ public class CoinDetailActivity extends AppCompatActivity {
                 .collection("Favourite");
         favRef.document(coinId)
                 .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            if (task.getResult().exists()) {
-                                favCoinImage.setImageResource(R.drawable.ic_star_border_black_24dp);
-                                favRef.document(coinId)
-                                        .delete().addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        favCoinImage.setImageResource(R.drawable.ic_star_filled);
-                                    }
-                                });
-                            } else {
-                                favCoinImage.setImageResource(R.drawable.ic_star_filled);
-                                favRef.document(coinId)
-                                        .set(new Favourite(coinId))
-                                        .addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                favCoinImage.setImageResource(R.drawable.ic_star_border_black_24dp);
-                                            }
-                                        });
-                            }
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        if (task.getResult().exists()) {
+                            favCoinImage.setImageResource(R.drawable.ic_star_border_black_24dp);
+                            favRef.document(coinId)
+                                    .delete().addOnFailureListener(e -> favCoinImage.setImageResource(R.drawable.ic_star_filled));
+                        } else {
+                            favCoinImage.setImageResource(R.drawable.ic_star_filled);
+                            favRef.document(coinId)
+                                    .set(new Favourite(coinId))
+                                    .addOnFailureListener(e -> favCoinImage.setImageResource(R.drawable.ic_star_border_black_24dp));
                         }
                     }
                 });
@@ -226,27 +237,27 @@ public class CoinDetailActivity extends AppCompatActivity {
     }
 
     private void findViews() {
-        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
-        market_cap_rank = (TextView) findViewById(R.id.price_m_cap_rank);
-        market_cap = (TextView) findViewById(R.id.price_cap_rank);
-        T_volume = (TextView) findViewById(R.id.country);
-        high24 = (TextView) findViewById(R.id.description);
-        low24 = (TextView) findViewById(R.id.has_trading_incentive);
-        available_total = (TextView) findViewById(R.id.trade_volume_24h_btc_normalized);
-        allTime_high = (TextView) findViewById(R.id.telegram_channel_user_count);
-        since_allTimeHigh = (TextView) findViewById(R.id.coingecko_rank);
-        mName = (TextView) findViewById(R.id.coin_name);
-        allTimeHighDate = (TextView) findViewById(R.id.country_origin);
-        favCoinImage = (ImageView) findViewById(R.id.favourite_icon_1);
+        progressBar = findViewById(R.id.progress_bar);
+        market_cap_rank = findViewById(R.id.price_m_cap_rank);
+        market_cap = findViewById(R.id.price_cap_rank);
+        T_volume = findViewById(R.id.country);
+        high24 = findViewById(R.id.description);
+        low24 = findViewById(R.id.has_trading_incentive);
+        available_total = findViewById(R.id.trade_volume_24h_btc_normalized);
+        allTime_high = findViewById(R.id.telegram_channel_user_count);
+        since_allTimeHigh = findViewById(R.id.coingecko_rank);
+        mName = findViewById(R.id.coin_name);
+        allTimeHighDate = findViewById(R.id.country_origin);
+        favCoinImage = findViewById(R.id.favourite_icon_1);
 
-        H24 = (TextView) findViewById(R.id.price_h24);
-        D7 = (TextView) findViewById(R.id.price_d7);
-        D14 = (TextView) findViewById(R.id.price_d14);
-        D30 = (TextView) findViewById(R.id.price_d30);
+        H24 = findViewById(R.id.price_h24);
+        D7 = findViewById(R.id.price_d7);
+        D14 = findViewById(R.id.price_d14);
+        D30 = findViewById(R.id.price_d30);
         D200 = findViewById(R.id.price_d200);
-        Y1 = (TextView) findViewById(R.id.price_y1);
+        Y1 = findViewById(R.id.price_y1);
 
-        mProfileImage = (CircleImageView) findViewById(R.id.profile_image);
+        mProfileImage = findViewById(R.id.profile_image);
         adContainerView = findViewById(R.id.ad_view_container2);
         adContainerView2 = findViewById(R.id.ad_view_container3);
 
@@ -260,6 +271,7 @@ public class CoinDetailActivity extends AppCompatActivity {
         inputLayoutPrice = findViewById(R.id.textInputLayPrice);
         coinQty = findViewById(R.id.etCoinQty);
         coinPriceConverted = findViewById(R.id.textPriceConverted);
+        tweetRec = findViewById(R.id.recCoinNews);
 
 
         coinQty.addTextChangedListener(new TextWatcher() {
@@ -292,12 +304,9 @@ public class CoinDetailActivity extends AppCompatActivity {
 
     private void initAds() {
 
-        MobileAds.initialize(this, new OnInitializationCompleteListener() {
-            @Override
-            public void onInitializationComplete(InitializationStatus initializationStatus) {
-                Log.d(TAG, "onInitializationComplete: ");
-                setUpAds();
-            }
+        MobileAds.initialize(this, initializationStatus -> {
+            Log.d(TAG, "onInitializationComplete: ");
+            setUpAds();
         });
 
     }
@@ -361,7 +370,7 @@ public class CoinDetailActivity extends AppCompatActivity {
         Call<List<CoinPrice>> call = uploadInterFace.getCoinPrice(HomeScreen.CURRENCY, coin_id, change);
         call.enqueue(new Callback<List<CoinPrice>>() {
             @Override
-            public void onResponse(Call<List<CoinPrice>> call, Response<List<CoinPrice>> response) {
+            public void onResponse(@NotNull Call<List<CoinPrice>> call, @NotNull Response<List<CoinPrice>> response) {
                 if (!response.isSuccessful()) {
                     progressBar.setVisibility(View.GONE);
                     Toast.makeText(CoinDetailActivity.this, "failed: " + response.errorBody(), Toast.LENGTH_SHORT).show();
@@ -376,8 +385,8 @@ public class CoinDetailActivity extends AppCompatActivity {
                         Picasso.with(CoinDetailActivity.this).load(imageUrl).into(mProfileImage);
                     }
                     mCoinName.setText(list.get(0).getSymbol());
-                    ImageView imageView = (ImageView) findViewById(R.id.up_down_image);
-                    TextView price = (TextView) findViewById(R.id.price);
+                    ImageView imageView = findViewById(R.id.up_down_image);
+                    TextView price = findViewById(R.id.price);
                     float pri = list.get(0).getCurrent_price();
                     CoinPrice = pri;
 
@@ -392,7 +401,7 @@ public class CoinDetailActivity extends AppCompatActivity {
 
 
                     //set Price Percentage
-                    TextView price_percentage = (TextView) findViewById(R.id.change_percentage);
+                    TextView price_percentage = findViewById(R.id.change_percentage);
                     float pri_percentage = list.get(0).getPrice_change_percentage_24h();
                     price_percentage.setText(pri_percentage + "%");
                     if (pri_percentage > 0) {
@@ -449,7 +458,7 @@ public class CoinDetailActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<List<CoinPrice>> call, Throwable t) {
+            public void onFailure(@NotNull Call<List<CoinPrice>> call, @NotNull Throwable t) {
                 Toast.makeText(CoinDetailActivity.this, "error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 progressBar.setVisibility(View.GONE);
 
@@ -475,7 +484,7 @@ public class CoinDetailActivity extends AppCompatActivity {
         Call<GraphModel> call = GraphData.getGraphData(COIN_ID, HomeScreen.CURRENCY, DAYS);
         call.enqueue(new Callback<GraphModel>() {
             @Override
-            public void onResponse(Call<GraphModel> call, Response<GraphModel> response) {
+            public void onResponse(@NotNull Call<GraphModel> call, @NotNull Response<GraphModel> response) {
                 progressBar.setVisibility(View.GONE);
                 if (response.isSuccessful()) {
                     if (response.body() != null) {
@@ -494,7 +503,7 @@ public class CoinDetailActivity extends AppCompatActivity {
 
 
             @Override
-            public void onFailure(Call<GraphModel> call, Throwable t) {
+            public void onFailure(@NotNull Call<GraphModel> call, @NotNull Throwable t) {
                 progressBar.setVisibility(View.GONE);
                 Log.e(TAG, "read error in graph data: " + t.getLocalizedMessage());
                 Toast.makeText(CoinDetailActivity.this, "try again " + t.getMessage(), Toast.LENGTH_SHORT).show();
@@ -505,7 +514,7 @@ public class CoinDetailActivity extends AppCompatActivity {
     }
 
     private void loadChart(GraphModel graphData) {
-        LineChart chart = (LineChart) findViewById(R.id.chart);
+        LineChart chart = findViewById(R.id.chart);
         List<Entry> entries = new ArrayList<Entry>();
         try {
             for (int a = 0; a < graphData.getPrices().size(); a++) {
@@ -551,8 +560,8 @@ public class CoinDetailActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-        pair = (TextView) toolbar.findViewById(R.id.pairing);
-        mCoinName = (TextView) toolbar.findViewById(R.id.name_coin);
+        pair = toolbar.findViewById(R.id.pairing);
+        mCoinName = toolbar.findViewById(R.id.name_coin);
 
         pair.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -571,7 +580,7 @@ public class CoinDetailActivity extends AppCompatActivity {
         LayoutInflater inflater = CoinDetailActivity.this.getLayoutInflater();
         View view = inflater.inflate(R.layout.coin_pair_recycler_layout, null);
 
-        recyclerView = (RecyclerView) view.findViewById(R.id.pair_rec);
+        recyclerView = view.findViewById(R.id.pair_rec);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         loadPairData();
 
@@ -579,11 +588,8 @@ public class CoinDetailActivity extends AppCompatActivity {
                 .setTitleTextSize(20) // In SP
                 .setCancelable(true)
                 .setView(view)
-                .setPositiveButton("Dismiss", new DialogSheet.OnPositiveClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // Your action
-                    }
+                .setPositiveButton("Dismiss", v -> {
+                    // Your action
                 })
                 .setBackgroundColor(Color.BLACK) // Your custom background color
                 .setButtonsColorRes(R.color.colorAccent);// ;You can use dialogSheetAccent style attribute instead
@@ -593,12 +599,7 @@ public class CoinDetailActivity extends AppCompatActivity {
         dialogSheet.setButtonsColorRes(R.color.dark_grey);
 
 
-        dialogSheet.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialogInterface) {
-                progressBar.setVisibility(View.GONE);
-            }
-        });
+        dialogSheet.setOnDismissListener(dialogInterface -> progressBar.setVisibility(View.GONE));
 
     }
 
