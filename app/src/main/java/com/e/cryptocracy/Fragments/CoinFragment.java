@@ -71,9 +71,9 @@ public class CoinFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_coin, container, false);
-        recyclerView = (RecyclerView) view.findViewById(R.id.coin_recycler);
-        progress = (AVLoadingIndicatorView) view.findViewById(R.id.progress_avi);
-        refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
+        recyclerView = view.findViewById(R.id.coin_recycler);
+        progress = view.findViewById(R.id.progress_avi);
+        refreshLayout = view.findViewById(R.id.swiperefresh);
         layoutManager = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
@@ -105,15 +105,12 @@ public class CoinFragment extends Fragment {
             }
         });
 
-        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                progress.setVisibility(View.VISIBLE);
-                recyclerView.removeAllViews();
-                coinModalList.clear();
-                recyclerView.removeAllViews();
-                loadCoinData(1);
-            }
+        refreshLayout.setOnRefreshListener(() -> {
+            progress.setVisibility(View.VISIBLE);
+            recyclerView.removeAllViews();
+            coinModalList.clear();
+            recyclerView.removeAllViews();
+            loadCoinData(1);
         });
 
         return view;

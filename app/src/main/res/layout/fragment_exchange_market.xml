@@ -87,6 +87,6 @@
                 app:indicatorColor="@color/colorbackground"
                 app:indicatorName="LineScaleIndicator" />
         </RelativeLayout>
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </FrameLayout>

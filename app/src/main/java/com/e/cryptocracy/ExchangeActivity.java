@@ -41,13 +41,13 @@ public class ExchangeActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled( true );
         getSupportActionBar().setDisplayShowHomeEnabled( true );
 
-        exchangeName = (TextView) toolbar.findViewById( R.id.textView2 );
-        trade_volume_24h_btc = (TextView) findViewById( R.id.textView );
-        trust_score_rank = (TextView) findViewById( R.id.textView12 );
-        trade_volume_24h_btc_normalized = (TextView) findViewById( R.id.textView11 );
-        centralized = (TextView) findViewById( R.id.textView15 );
-        trust_score = (TextView) findViewById( R.id.textView16 );
-        ExchangeImage = (ImageView) toolbar.findViewById( R.id.imageView4 );
+        exchangeName = toolbar.findViewById( R.id.textView2 );
+        trade_volume_24h_btc = findViewById( R.id.textView );
+        trust_score_rank = findViewById( R.id.textView12 );
+        trade_volume_24h_btc_normalized = findViewById( R.id.textView11 );
+        centralized = findViewById( R.id.textView15 );
+        trust_score = findViewById( R.id.textView16 );
+        ExchangeImage = toolbar.findViewById( R.id.imageView4 );
 
         if (getIntent().hasExtra( "exchangeId" )) {
             EXCHANGE_ID = getIntent().getStringExtra( "exchangeId" );
@@ -77,8 +77,8 @@ public class ExchangeActivity extends AppCompatActivity {
     }
 
     private void setFragment() {
-        tabLayout = (TabLayout) findViewById( R.id.ex_tabs );
-        pager = (ViewPager) findViewById( R.id.ex_view_pager );
+        tabLayout = findViewById( R.id.ex_tabs );
+        pager = findViewById( R.id.ex_view_pager );
         pagerAdapter = new ViewPagerAdapter( getSupportFragmentManager() );
         pagerAdapter.Addfragment( new ExchangeMarket( ExchangeActivity.this, EXCHANGE_ID ), "Market" );
         pagerAdapter.Addfragment( new ExchangeInfo( ExchangeActivity.this ), "Info" );

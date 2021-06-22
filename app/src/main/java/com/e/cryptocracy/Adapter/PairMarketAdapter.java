@@ -114,12 +114,12 @@ public class PairMarketAdapter extends RecyclerView.Adapter<PairMarketAdapter.My
 
         public MyViewHolder(@NonNull View itemView) {
             super( itemView );
-            base = (TextView) itemView.findViewById( R.id.base );
-            target = (TextView) itemView.findViewById( R.id.target );
-            trading_site_name = (TextView) itemView.findViewById( R.id.trading_site_name );
-            imageView = (ImageView) itemView.findViewById( R.id.imageView2 );
-            price = (TextView) itemView.findViewById( R.id.textView9 );
-            volume = (TextView) itemView.findViewById( R.id.textView10 );
+            base = itemView.findViewById( R.id.base );
+            target = itemView.findViewById( R.id.target );
+            trading_site_name = itemView.findViewById( R.id.trading_site_name );
+            imageView = itemView.findViewById( R.id.imageView2 );
+            price = itemView.findViewById( R.id.textView9 );
+            volume = itemView.findViewById( R.id.textView10 );
 
 
         }

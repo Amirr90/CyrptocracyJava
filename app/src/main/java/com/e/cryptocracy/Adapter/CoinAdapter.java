@@ -2,9 +2,6 @@ package com.e.cryptocracy.Adapter;
 
 import android.content.Context;
 import android.content.Intent;
-
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +10,9 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.e.cryptocracy.CoinDetailActivity;
 import com.e.cryptocracy.HomeScreen;
@@ -36,10 +36,10 @@ import java.util.List;
 import co.blankkeys.animatedlinegraphview.AnimatedLineGraphView;
 
 public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.MyViewHolder> {
-    private List<CoinModal> coinList;
-    private Context context;
-    private String TAG = "CoinAdapter";
-    private static int MAX_LENGTH = 4;
+    private final List<CoinModal> coinList;
+    private final Context context;
+    private final String TAG = "CoinAdapter";
+    private static final int MAX_LENGTH = 4;
     FirebaseFirestore db;
     CollectionReference favRef;
 
@@ -89,35 +89,23 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.MyViewHolder> 
             Picasso.with(context).load(image_url).into(myViewHolder.coinIcon);
         }
 
-        myViewHolder.layout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String coinId = coinList.get(position).getId();
-                context.startActivity(new Intent(context, CoinDetailActivity.class)
-                        .putExtra("coin_id", coinId));
-            }
+        myViewHolder.layout.setOnClickListener(view -> {
+            String coinId = coinList.get(position).getId();
+            context.startActivity(new Intent(context, CoinDetailActivity.class)
+                    .putExtra("coin_id", coinId)
+                    .putExtra("coinName", coinList.get(position).getName())
+                    .putExtra("coinSymbol", coinList.get(position).getSymbol())
+
+            );
         });
 
-        myViewHolder.favIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String coinId = coinList.get(position).getId();
-                myViewHolder.favIcon.setImageResource(R.drawable.ic_star_filled);
-                favRef.document(coinId)
-                        .set(new Favourite(coinId))
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                Toast.makeText(context, "added", Toast.LENGTH_SHORT).show();
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                myViewHolder.favIcon.setImageResource(R.drawable.ic_star_border_black_24dp);
-                            }
-                        });
-            }
+        myViewHolder.favIcon.setOnClickListener(view -> {
+            String coinId = coinList.get(position).getId();
+            myViewHolder.favIcon.setImageResource(R.drawable.ic_star_filled);
+            favRef.document(coinId)
+                    .set(new Favourite(coinId))
+                    .addOnCompleteListener(task -> Toast.makeText(context, "added", Toast.LENGTH_SHORT).show())
+                    .addOnFailureListener(e -> myViewHolder.favIcon.setImageResource(R.drawable.ic_star_border_black_24dp));
         });
 
 
@@ -127,15 +115,12 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.MyViewHolder> 
     private void setFavIcon(final MyViewHolder myViewHolder, int position) {
         favRef.document(coinList.get(position).getId())
                 .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            if (task.getResult().exists()) {
-                                myViewHolder.favIcon.setImageResource(R.drawable.ic_star_filled);
-                            } else {
-                                myViewHolder.favIcon.setImageResource(R.drawable.ic_star_border_black_24dp);
-                            }
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        if (task.getResult().exists()) {
+                            myViewHolder.favIcon.setImageResource(R.drawable.ic_star_filled);
+                        } else {
+                            myViewHolder.favIcon.setImageResource(R.drawable.ic_star_border_black_24dp);
                         }
                     }
                 });
@@ -166,7 +151,12 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.MyViewHolder> 
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
-        private TextView title, rank, symbol, price_chang_prcntage, coin_price, mCap;
+        private final TextView title;
+        private final TextView rank;
+        private final TextView symbol;
+        private final TextView price_chang_prcntage;
+        private final TextView coin_price;
+        private final TextView mCap;
         ImageView coinIcon, sortIcon, favIcon;
         RelativeLayout layout;
         AnimatedLineGraphView graph;
@@ -174,17 +164,17 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.MyViewHolder> 
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
-            title = (TextView) itemView.findViewById(R.id.name);
-            rank = (TextView) itemView.findViewById(R.id.rank);
-            symbol = (TextView) itemView.findViewById(R.id.symbol);
-            mCap = (TextView) itemView.findViewById(R.id.mcap);
-            coin_price = (TextView) itemView.findViewById(R.id.coin_price);
-            price_chang_prcntage = (TextView) itemView.findViewById(R.id.change_percentage);
-            coinIcon = (ImageView) itemView.findViewById(R.id.coin_image);
-            sortIcon = (ImageView) itemView.findViewById(R.id.up_down_image);
-            favIcon = (ImageView) itemView.findViewById(R.id.favourite_icon);
-            layout = (RelativeLayout) itemView.findViewById(R.id.main_lay);
-            graph = (AnimatedLineGraphView) itemView.findViewById(R.id.graph);
+            title = itemView.findViewById(R.id.name);
+            rank = itemView.findViewById(R.id.rank);
+            symbol = itemView.findViewById(R.id.symbol);
+            mCap = itemView.findViewById(R.id.mcap);
+            coin_price = itemView.findViewById(R.id.coin_price);
+            price_chang_prcntage = itemView.findViewById(R.id.change_percentage);
+            coinIcon = itemView.findViewById(R.id.coin_image);
+            sortIcon = itemView.findViewById(R.id.up_down_image);
+            favIcon = itemView.findViewById(R.id.favourite_icon);
+            layout = itemView.findViewById(R.id.main_lay);
+            graph = itemView.findViewById(R.id.graph);
 
         }
     }

@@ -290,14 +290,14 @@
                     android:fontFamily="@font/amiko"
                     android:gravity="center"
                     android:padding="5dp"
-                    android:text="@string/quick_converter"
+                    android:text="@string/quick_calculator"
                     android:textColor="@color/colorPrimaryDark"
-                    android:textSize="16sp"
-                    app:drawableEndCompat="@drawable/ic_baseline_change_circle_24" />
+                    android:textSize="16sp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:baselineAligned="false"
                     android:orientation="horizontal"
                     android:padding="10dp"
                     android:weightSum="2">

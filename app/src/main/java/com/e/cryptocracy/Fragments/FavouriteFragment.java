@@ -69,7 +69,7 @@ public class FavouriteFragment extends Fragment {
     FirebaseFirestore db;
     CollectionReference FavRef;
     int CURRENT_PAGE;
-    private static int MAX_LENGTH = 4;
+    private static final int MAX_LENGTH = 4;
     ProgressDialog dialog;
 
     onLoadMoreInterface onLoadMoreInterface;
@@ -92,9 +92,9 @@ public class FavouriteFragment extends Fragment {
         FavRef = db.collection("users")
                 .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
                 .collection("Favourite");
-        recyclerView = (RecyclerView) view.findViewById(R.id.fav_coin_recycler);
-        progress = (AVLoadingIndicatorView) view.findViewById(R.id.fav_progress_avi);
-        refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.fav_swiperefresh);
+        recyclerView = view.findViewById(R.id.fav_coin_recycler);
+        progress = view.findViewById(R.id.fav_progress_avi);
+        refreshLayout = view.findViewById(R.id.fav_swiperefresh);
         layoutManager = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
@@ -254,9 +254,9 @@ public class FavouriteFragment extends Fragment {
     }
 
     public class FavCoinAdapter extends RecyclerView.Adapter<FavCoinAdapter.MyViewHolder> {
-        private List<CoinModal> coinList;
-        private Context context;
-        private String TAG = "CoinAdapter";
+        private final List<CoinModal> coinList;
+        private final Context context;
+        private final String TAG = "CoinAdapter";
 
 
         FirebaseFirestore db;
@@ -367,7 +367,12 @@ public class FavouriteFragment extends Fragment {
         }
 
         public class MyViewHolder extends RecyclerView.ViewHolder {
-            private TextView title, rank, symbol, price_chang_prcntage, coin_price, mCap;
+            private final TextView title;
+            private final TextView rank;
+            private final TextView symbol;
+            private final TextView price_chang_prcntage;
+            private final TextView coin_price;
+            private final TextView mCap;
             ImageView coinIcon, sortIcon, favIcon;
             RelativeLayout layout;
             AnimatedLineGraphView graph;
@@ -375,17 +380,17 @@ public class FavouriteFragment extends Fragment {
 
             public MyViewHolder(@NonNull View itemView) {
                 super(itemView);
-                title = (TextView) itemView.findViewById(R.id.name);
-                rank = (TextView) itemView.findViewById(R.id.rank);
-                symbol = (TextView) itemView.findViewById(R.id.symbol);
-                mCap = (TextView) itemView.findViewById(R.id.mcap);
-                coin_price = (TextView) itemView.findViewById(R.id.coin_price);
-                price_chang_prcntage = (TextView) itemView.findViewById(R.id.change_percentage);
-                coinIcon = (ImageView) itemView.findViewById(R.id.coin_image);
-                sortIcon = (ImageView) itemView.findViewById(R.id.up_down_image);
-                favIcon = (ImageView) itemView.findViewById(R.id.favourite_icon);
-                layout = (RelativeLayout) itemView.findViewById(R.id.main_lay);
-                graph = (AnimatedLineGraphView) itemView.findViewById(R.id.graph);
+                title = itemView.findViewById(R.id.name);
+                rank = itemView.findViewById(R.id.rank);
+                symbol = itemView.findViewById(R.id.symbol);
+                mCap = itemView.findViewById(R.id.mcap);
+                coin_price = itemView.findViewById(R.id.coin_price);
+                price_chang_prcntage = itemView.findViewById(R.id.change_percentage);
+                coinIcon = itemView.findViewById(R.id.coin_image);
+                sortIcon = itemView.findViewById(R.id.up_down_image);
+                favIcon = itemView.findViewById(R.id.favourite_icon);
+                layout = itemView.findViewById(R.id.main_lay);
+                graph = itemView.findViewById(R.id.graph);
 
             }
         }

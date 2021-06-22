@@ -2,8 +2,6 @@ package com.e.cryptocracy.Adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +9,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.e.cryptocracy.CoinDetailActivity;
 import com.e.cryptocracy.Model.CoinModal;
@@ -26,8 +27,7 @@ public class SearchCoinHolder extends RecyclerView.Adapter<SearchCoinHolder.Sear
     Context context;
 
 
-
-    public SearchCoinHolder(List<CoinModal> list, Context context ) {
+    public SearchCoinHolder(List<CoinModal> list, Context context) {
         this.list = list;
         this.context = context;
     }
@@ -36,61 +36,56 @@ public class SearchCoinHolder extends RecyclerView.Adapter<SearchCoinHolder.Sear
     @Override
     public SearchViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
 
-        View view = LayoutInflater.from(viewGroup.getContext()).inflate( R.layout.serach_coin_view, viewGroup, false);
-        return new SearchViewHolder( view );
+        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.serach_coin_view, viewGroup, false);
+        return new SearchViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull final SearchViewHolder searchViewHolder, final int i) {
 
         try {
-            StringBuilder name=new StringBuilder();
-            name.append( list.get( i ).getName()+"(" );
-            name.append( list.get( i ).getSymbol()+")" );
-            searchViewHolder.s_Name.setText( name.toString() );
-            Picasso.with( context ).load( "https://res.cloudinary.com/dxi90ksom/image/upload/"+list.get( i ).getSymbol()+".png" )
-                    .networkPolicy( NetworkPolicy.OFFLINE ).placeholder( R.drawable.app_logo )
-                    .into( searchViewHolder.s_Icon, new Callback() {
-                @Override
-                public void onSuccess() {
+            StringBuilder name = new StringBuilder();
+            name.append(list.get(i).getName() + "(");
+            name.append(list.get(i).getSymbol() + ")");
+            searchViewHolder.s_Name.setText(name.toString());
+            Picasso.with(context).load("https://res.cloudinary.com/dxi90ksom/image/upload/" + list.get(i).getSymbol() + ".png")
+                    .networkPolicy(NetworkPolicy.OFFLINE).placeholder(R.drawable.app_logo)
+                    .into(searchViewHolder.s_Icon, new Callback() {
+                        @Override
+                        public void onSuccess() {
 
-                }
+                        }
 
-                @Override
-                public void onError() {
+                        @Override
+                        public void onError() {
 
-                    try {
-                        Picasso.with( context ).load( "https://res.cloudinary.com/dxi90ksom/image/upload/"+list.get( i ).getSymbol()+".png" )
-                                .placeholder( R.drawable.app_logo ).into( searchViewHolder.s_Icon);
-                    }
-                    catch (IndexOutOfBoundsException e)
-                    {
+                            try {
+                                Picasso.with(context).load("https://res.cloudinary.com/dxi90ksom/image/upload/" + list.get(i).getSymbol() + ".png")
+                                        .placeholder(R.drawable.app_logo).into(searchViewHolder.s_Icon);
+                            } catch (IndexOutOfBoundsException e) {
 
-                    }
-                }
-            } );
-        }
-        catch (Exception e)
-        {
+                            }
+                        }
+                    });
+        } catch (Exception e) {
 
         }
 
-        searchViewHolder.layout.setOnClickListener( new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent=new Intent( context, CoinDetailActivity.class );
-                intent.putExtra( "coin_id",list.get( i ).getId() );
-                context.startActivity(intent);
-            }
-        } );
+        searchViewHolder.layout.setOnClickListener(view -> {
+            Intent intent = new Intent(context, CoinDetailActivity.class);
+            intent.putExtra("coin_id", list.get(i).getId());
+            intent.putExtra("coinName", list.get(i).getName());
+            intent.putExtra("coinSymbol", list.get(i).getSymbol());
+            context.startActivity(intent);
+        });
 
     }
 
 
-    public void updateList(List<CoinModal> list, ProgressBar progressBar){
-        this.list=list;
+    public void updateList(List<CoinModal> list, ProgressBar progressBar) {
+        this.list = list;
         notifyDataSetChanged();
-        progressBar.setVisibility( View.GONE );
+        progressBar.setVisibility(View.GONE);
 
     }
 
@@ -100,16 +95,17 @@ public class SearchCoinHolder extends RecyclerView.Adapter<SearchCoinHolder.Sear
     }
 
     public class SearchViewHolder extends RecyclerView.ViewHolder {
-        TextView s_Rank,s_Name;
+        TextView s_Rank, s_Name;
         ImageView s_Icon;
         LinearLayout layout;
-        public SearchViewHolder(@NonNull View itemView) {
-            super( itemView );
 
-            layout=(LinearLayout)itemView.findViewById( R.id.s_coin_layout );
-            s_Name=(TextView)itemView.findViewById( R.id.s_name );
+        public SearchViewHolder(@NonNull View itemView) {
+            super(itemView);
+
+            layout = itemView.findViewById(R.id.s_coin_layout);
+            s_Name = itemView.findViewById(R.id.s_name);
             //*s_Rank=(TextView)itemView.findViewById( R.id.s_rank );*//*
-            s_Icon=(ImageView)itemView.findViewById( R.id.s_icon );
+            s_Icon = itemView.findViewById(R.id.s_icon);
         }
     }
 }

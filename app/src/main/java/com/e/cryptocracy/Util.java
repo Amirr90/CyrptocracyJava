@@ -1,6 +1,5 @@
 package com.e.cryptocracy;
 
-import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -45,8 +44,8 @@ public class Util {
 
 
     public static String parseDate(String inDate, String outPattern, String inputPattern) {
-        @SuppressLint("SimpleDateFormat") SimpleDateFormat inputFormat = new SimpleDateFormat(inputPattern);
-        @SuppressLint("SimpleDateFormat") SimpleDateFormat outputFormat = new SimpleDateFormat(outPattern);
+        SimpleDateFormat inputFormat = new SimpleDateFormat(inputPattern);
+        SimpleDateFormat outputFormat = new SimpleDateFormat(outPattern);
 
         Date date;
         String str = null;

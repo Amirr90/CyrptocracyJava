@@ -39,9 +39,9 @@ public class SplashScreen extends AppCompatActivity {
 
         auth = FirebaseAuth.getInstance();
         final Animation aniFade = AnimationUtils.loadAnimation( getApplicationContext(), R.anim.fade_in );
-        mLogoImage = (ImageView) findViewById( R.id.app_logo );
+        mLogoImage = findViewById( R.id.app_logo );
         mLogoImage.startAnimation( aniFade );
-        progressBar = (ProgressBar) findViewById( R.id.progressBar );
+        progressBar = findViewById( R.id.progressBar );
 
         startTimer();
 

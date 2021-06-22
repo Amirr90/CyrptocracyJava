@@ -15,7 +15,7 @@ public class TweetModel {
 
 
     public String getDate() {
-        return Util.parseDate(date, "h:mm a MMM d, ''yy", "yyyy-MM-dd'T'HH:mm:ssZ");
+        return Util.parseDate(date, "h:mm a MMM d, ''yy", "yyyy-MM-dd'T'HH:mm:ss");
     }
 
     public void setDate(String date) {
