@@ -74,9 +74,9 @@ public class ExchangeMarket extends Fragment {
         View view = inflater.inflate( R.layout.fragment_exchange_market, container, false );
 
 
-        recyclerView = (RecyclerView) view.findViewById( R.id.ex_market_recycler );
-        progress = (AVLoadingIndicatorView) view.findViewById( R.id.ex_progress_avi );
-        refreshLayout = (SwipeRefreshLayout) view.findViewById( R.id.ex_mar_swiperefresh );
+        recyclerView = view.findViewById( R.id.ex_market_recycler );
+        progress = view.findViewById( R.id.ex_progress_avi );
+        refreshLayout = view.findViewById( R.id.ex_mar_swiperefresh );
         layoutManager = new LinearLayoutManager( context );
         recyclerView.setLayoutManager( layoutManager );
         recyclerView.setAdapter( adapter );
@@ -308,18 +308,20 @@ public class ExchangeMarket extends Fragment {
         }
 
         public class MyViewHolder extends RecyclerView.ViewHolder {
-            private TextView pair, price, volume;
-            private ImageView trustImage;
-            private RelativeLayout layout;
+            private final TextView pair;
+            private final TextView price;
+            private final TextView volume;
+            private final ImageView trustImage;
+            private final RelativeLayout layout;
 
             public MyViewHolder(@NonNull View itemView) {
                 super( itemView );
 
-                pair = (TextView) itemView.findViewById( R.id.textView13 );
-                price = (TextView) itemView.findViewById( R.id.textView14 );
-                volume = (TextView) itemView.findViewById( R.id.textView17 );
-                trustImage = (ImageView) itemView.findViewById( R.id.textView18 );
-                layout = (RelativeLayout) itemView.findViewById( R.id.ex_header_lay );
+                pair = itemView.findViewById( R.id.textView13 );
+                price = itemView.findViewById( R.id.textView14 );
+                volume = itemView.findViewById( R.id.textView17 );
+                trustImage = itemView.findViewById( R.id.textView18 );
+                layout = itemView.findViewById( R.id.ex_header_lay );
             }
         }
     }

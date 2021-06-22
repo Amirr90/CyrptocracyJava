@@ -80,9 +80,9 @@ public class ExchangeFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_exchabge, container, false);
 
-        recyclerView = (RecyclerView) view.findViewById(R.id.exchange_recycler);
-        refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.exchange_ref);
-        progressBar = (AVLoadingIndicatorView) view.findViewById(R.id.progress_avi);
+        recyclerView = view.findViewById(R.id.exchange_recycler);
+        refreshLayout = view.findViewById(R.id.exchange_ref);
+        progressBar = view.findViewById(R.id.progress_avi);
         recyclerView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(layoutManager);
@@ -245,18 +245,18 @@ public class ExchangeFragment extends Fragment {
         public class MyViewHolder extends RecyclerView.ViewHolder {
             TextView XchangeName, ExchangeRank, ExchangeTrustScore, XchangeVolumeNormalized, XchangeVolume24H;
             ImageView ExchabgeImage, ExchangeTrustImage;
-            private RelativeLayout layout;
+            private final RelativeLayout layout;
 
             public MyViewHolder(@NonNull View itemView) {
                 super(itemView);
-                XchangeName = (TextView) itemView.findViewById(R.id.name);
-                ExchabgeImage = (ImageView) itemView.findViewById(R.id.coin_image);
-                ExchangeTrustImage = (ImageView) itemView.findViewById(R.id.up_down_image);
-                ExchangeRank = (TextView) itemView.findViewById(R.id.rank);
-                ExchangeTrustScore = (TextView) itemView.findViewById(R.id.symbol);
-                XchangeVolumeNormalized = (TextView) itemView.findViewById(R.id.coin_price);
-                XchangeVolume24H = (TextView) itemView.findViewById(R.id.mcap);
-                layout = (RelativeLayout) itemView.findViewById(R.id.main_lay);
+                XchangeName = itemView.findViewById(R.id.name);
+                ExchabgeImage = itemView.findViewById(R.id.coin_image);
+                ExchangeTrustImage = itemView.findViewById(R.id.up_down_image);
+                ExchangeRank = itemView.findViewById(R.id.rank);
+                ExchangeTrustScore = itemView.findViewById(R.id.symbol);
+                XchangeVolumeNormalized = itemView.findViewById(R.id.coin_price);
+                XchangeVolume24H = itemView.findViewById(R.id.mcap);
+                layout = itemView.findViewById(R.id.main_lay);
             }
         }
     }

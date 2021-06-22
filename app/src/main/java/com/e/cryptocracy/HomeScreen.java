@@ -101,44 +101,23 @@ public class HomeScreen extends AppCompatActivity {
 
 
 
-        mChangeCurrencyText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                changeCurrencyDialog();
-            }
+        mChangeCurrencyText.setOnClickListener(view -> changeCurrencyDialog());
+
+        mSearchIcon.setOnClickListener(view -> startActivity(new Intent(HomeScreen.this, SearchActivity.class)));
+
+        mSettingsIcon.setOnClickListener(view -> {
         });
 
-        mSearchIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(HomeScreen.this, SearchActivity.class));
-            }
-        });
-
-        mSettingsIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-            }
-        });
-
-        mFilterIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showFilterDialog();
-            }
-        });
+        mFilterIcon.setOnClickListener(view -> showFilterDialog());
 
         FirebaseMessaging.getInstance().subscribeToTopic("priceAlert");
 
     }
 
     private void initAds() {
-        MobileAds.initialize(this, new OnInitializationCompleteListener() {
-            @Override
-            public void onInitializationComplete(InitializationStatus initializationStatus) {
-                Log.d(TAG, "onInitializationComplete: ");
-                setUpAds();
-            }
+        MobileAds.initialize(this, initializationStatus -> {
+            Log.d(TAG, "onInitializationComplete: ");
+            setUpAds();
         });
     }
 

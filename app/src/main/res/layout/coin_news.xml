@@ -20,6 +20,7 @@
 
 
         <de.hdodenhof.circleimageview.CircleImageView
+            android:loadImage="@{tweet.user_image_link}"
             android:id="@+id/circleImageView"
             android:layout_width="50dp"
             android:layout_height="50dp"

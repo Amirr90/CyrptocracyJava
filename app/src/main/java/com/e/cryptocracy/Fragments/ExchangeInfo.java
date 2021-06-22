@@ -44,15 +44,15 @@ public class ExchangeInfo extends Fragment {
         // Inflate the layout for this fragment
         View view= inflater.inflate( R.layout.fragment_exchange_info, container, false );
 
-        year = (TextView) view.findViewById( R.id.textView20 );
-        Link1 = (TextView) view.findViewById( R.id.link1 );
-        Link2 = (TextView) view.findViewById( R.id.link2 );
-        Country = (TextView) view.findViewById( R.id.ex_country );
-        TradingIncentive = (TextView) view.findViewById( R.id.ex_trading_incentive );
+        year = view.findViewById( R.id.textView20 );
+        Link1 = view.findViewById( R.id.link1 );
+        Link2 = view.findViewById( R.id.link2 );
+        Country = view.findViewById( R.id.ex_country );
+        TradingIncentive = view.findViewById( R.id.ex_trading_incentive );
 
-        homepage = (LinearLayout) view.findViewById( R.id.homepage );
-        facebook = (LinearLayout) view.findViewById( R.id.face );
-        reddit = (LinearLayout) view.findViewById( R.id.red );
+        homepage = view.findViewById( R.id.homepage );
+        facebook = view.findViewById( R.id.face );
+        reddit = view.findViewById( R.id.red );
 
         return  view;
     }

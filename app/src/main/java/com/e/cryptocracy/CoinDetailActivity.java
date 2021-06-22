@@ -142,7 +142,7 @@ public class CoinDetailActivity extends AppCompatActivity {
 
             String coinName = getIntent().getStringExtra("coinName");
             String coinSymbol = getIntent().getStringExtra("coinSymbol");
-            Log.d(TAG, "onCreate: " + tweetAdapter.getItemCount());
+            Log.d(TAG, "onCreate: " + coinName + coinSymbol);
 
             String str = "doge-dogecoin".trim();
             viewModel.tweetList(str).observe(this, tweetModels -> {
@@ -578,7 +578,7 @@ public class CoinDetailActivity extends AppCompatActivity {
 
         // get the layout inflater
         LayoutInflater inflater = CoinDetailActivity.this.getLayoutInflater();
-        View view = inflater.inflate(R.layout.coin_pair_recycler_layout, null);
+        @SuppressLint("InflateParams") View view = inflater.inflate(R.layout.coin_pair_recycler_layout, null);
 
         recyclerView = view.findViewById(R.id.pair_rec);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));

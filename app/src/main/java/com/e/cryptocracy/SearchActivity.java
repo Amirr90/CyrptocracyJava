@@ -41,9 +41,9 @@ public class SearchActivity extends AppCompatActivity {
         setSupportActionBar( toolbar );
         setToolbar( toolbar );
 
-        searchBar = (MaterialSearchBar) toolbar.findViewById( R.id.searchBar );
-        progressBar = (ProgressBar) findViewById( R.id.progressBar2 );
-        mSearchRec=(RecyclerView)findViewById( R.id.search_rec );
+        searchBar = toolbar.findViewById( R.id.searchBar );
+        progressBar = findViewById( R.id.progressBar2 );
+        mSearchRec= findViewById( R.id.search_rec );
         mSearchRec.setLayoutManager( new LinearLayoutManager( this ) );
         data2 = new ArrayList<>();
 
@@ -60,7 +60,6 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 progressBar.setVisibility( View.VISIBLE );
-                //Toast.makeText( SearchActivity.this, charSequence.toString(), Toast.LENGTH_SHORT ).show();
                 filter( charSequence.toString() );
 
             }
@@ -68,7 +67,6 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable editable) {
                 progressBar.setVisibility( View.VISIBLE );
-               // Toast.makeText( SearchActivity.this, editable.toString(), Toast.LENGTH_SHORT ).show();
                 filter( editable.toString() );
             }
         } );
@@ -108,7 +106,6 @@ public class SearchActivity extends AppCompatActivity {
         setSupportActionBar( toolbar );
         getSupportActionBar().setDisplayHomeAsUpEnabled( true );
         getSupportActionBar().setDisplayShowHomeEnabled( true );
-        //getSupportActionBar().setTitle( id );
 
 
     }
@@ -128,7 +125,6 @@ public class SearchActivity extends AppCompatActivity {
                     temp.add( d );
                 }
             }
-            //update recyclerView
             mSearchAdapter.updateList( temp, progressBar );
         }
     }
