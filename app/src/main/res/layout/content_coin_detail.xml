@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fillViewport="true"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".CoinDetailActivity"
     tools:showIn="@layout/activity_coin_detail">
@@ -783,10 +784,11 @@
             android:visibility="gone" />
 
         <androidx.recyclerview.widget.RecyclerView
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
             android:id="@+id/recCoinNews"
             android:layout_width="match_parent"
-            android:layout_height="600dp"
-            android:nestedScrollingEnabled="true"
+            android:layout_height="match_parent"
+            android:nestedScrollingEnabled="false"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/coin_news" />
     </LinearLayout>

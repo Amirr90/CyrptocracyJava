@@ -54,6 +54,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:text="@{tweet.status}"
+            android:autoLink="web"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:textColor="@color/common_google_signin_btn_text_dark_focused"
             app:layout_constraintEnd_toEndOf="parent"
