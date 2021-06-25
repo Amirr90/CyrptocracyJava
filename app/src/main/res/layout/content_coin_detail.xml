@@ -473,9 +473,9 @@
             <com.highsoft.highcharts.core.HIChartView
                 android:id="@+id/chartView"
                 android:layout_width="match_parent"
-                android:layout_height="350dp"
+                android:layout_height="275dp"
                 android:layout_marginTop="8dp"
-                android:visibility="gone"
+                android:visibility="visible"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -486,7 +486,7 @@
                 android:layout_height="275dp"
                 android:layout_marginTop="8dp"
                 android:focusableInTouchMode="true"
-                android:visibility="visible" />
+                android:visibility="gone" />
 
         </androidx.cardview.widget.CardView>
 

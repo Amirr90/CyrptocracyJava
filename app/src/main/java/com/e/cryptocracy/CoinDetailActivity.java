@@ -34,6 +34,7 @@ import com.e.cryptocracy.adapters.TweetAdapter;
 import com.e.cryptocracy.component.AppComponent;
 import com.e.cryptocracy.component.DaggerAppComponent;
 import com.e.cryptocracy.module.AppModule;
+import com.e.cryptocracy.module.Management;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.data.Entry;
@@ -48,6 +49,9 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.highsoft.highcharts.common.hichartsclasses.HIOptions;
+import com.highsoft.highcharts.common.hichartsclasses.HISpline;
+import com.highsoft.highcharts.core.HIChartView;
 import com.marcoscg.dialogsheet.DialogSheet;
 import com.nex3z.togglebuttongroup.SingleSelectToggleGroup;
 import com.squareup.picasso.Picasso;
@@ -112,6 +116,14 @@ public class CoinDetailActivity extends AppCompatActivity {
 
     AppComponent appComponent;
     String str;
+    HIChartView chartView;
+
+
+    HIOptions options;
+
+    @Inject
+    Management management;
+
 
     @SuppressLint("NonConstantResourceId")
     @Override
@@ -128,6 +140,8 @@ public class CoinDetailActivity extends AppCompatActivity {
         findViews();
         if (getIntent().hasExtra("coin_id")) {
             initDependency();
+            initGraph();
+
             COIN_ID = getIntent().getStringExtra("coin_id");
             String DAYS = "1";
             setToolbar(toolbar);
@@ -154,6 +168,7 @@ public class CoinDetailActivity extends AppCompatActivity {
 
 
             });
+
 
         } else {
             finish();
@@ -190,6 +205,11 @@ public class CoinDetailActivity extends AppCompatActivity {
         });
 
         favCoinImage.setOnClickListener(view -> updateFavCoin(COIN_ID));
+
+    }
+
+    private void initGraph() {
+
 
     }
 
@@ -277,6 +297,10 @@ public class CoinDetailActivity extends AppCompatActivity {
         coinPriceConverted = findViewById(R.id.textPriceConverted);
         tweetRec = findViewById(R.id.recCoinNews);
         tweetRec = findViewById(R.id.recCoinNews);
+
+        chartView = findViewById(R.id.chartView);
+
+
         coinQty.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -495,7 +519,9 @@ public class CoinDetailActivity extends AppCompatActivity {
                         if (!seriesData.isEmpty())
                             seriesData.clear();
                         GraphModel graphData = response.body();
-                        loadChart(graphData);
+                        //loadChart(graphData);
+
+                        addData(graphData);
 
                     } else {
                         Toast.makeText(CoinDetailActivity.this, "no data ", Toast.LENGTH_SHORT).show();
@@ -516,6 +542,22 @@ public class CoinDetailActivity extends AppCompatActivity {
 
 
     }
+
+    private void addData(GraphModel graphData) {
+        options = management.getHiOptions();
+        HISpline series1 = new HISpline();
+        series1.setName(COIN_ID);
+        Number[] series1_data = new Number[graphData.getPrices().size()];
+        for (int a = 0; a < graphData.getPrices().size(); a++) {
+            series1_data[a] = graphData.getPrices().get(a).get(1);
+        }
+        series1.setData(new ArrayList<>(Arrays.asList(series1_data)));
+        options.setSeries(new ArrayList<>(Arrays.asList(series1)));
+
+        chartView.setOptions(options);
+        Log.d(TAG, "addData: ");
+    }
+
 
     private void loadChart(GraphModel graphData) {
         LineChart chart = findViewById(R.id.chart);
