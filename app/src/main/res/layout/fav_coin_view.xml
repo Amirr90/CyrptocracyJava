@@ -9,35 +9,33 @@
 
 
     <RelativeLayout
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
         android:id="@+id/main_lay"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?android:selectableItemBackground"
-        android:clickable="true"
         android:focusable="true"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp">
+        android:clickable="true">
 
         <ImageView
+            android:layout_marginStart="15dp"
             android:id="@+id/coin_image"
             android:layout_width="45dp"
             android:layout_height="45dp"
             android:layout_centerVertical="true"
-            android:layout_marginStart="15dp"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="5dp"
-            android:layout_toEndOf="@+id/rank"
+            android:layout_toRightOf="@+id/rank"
             app:srcCompat="@drawable/app_logo" />
 
         <ImageView
             android:id="@+id/favourite_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:clickable="false"
-            android:padding="5dp"
-            android:src="@drawable/ic_baseline_keyboard_arrow_right_24" />
+            android:layout_marginRight="5dp" />
 
         <RelativeLayout
             android:id="@+id/inner_lay"
@@ -55,9 +53,9 @@
                 android:layout_width="15dp"
                 android:layout_height="15dp"
                 android:layout_below="@id/name"
-                android:layout_marginStart="3dp"
+                android:layout_marginLeft="3dp"
                 android:layout_marginTop="2dp"
-                android:layout_toEndOf="@id/symbol" />
+                android:layout_toRightOf="@id/symbol" />
 
             <TextView
                 android:id="@+id/symbol"
@@ -85,35 +83,35 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/name"
-                android:layout_marginStart="2dp"
-                android:layout_toEndOf="@id/up_down_image"
+                android:layout_marginLeft="2dp"
+                android:layout_toRightOf="@id/up_down_image"
                 android:fontFamily="@font/amiko"
                 android:textSize="12sp" />
         </RelativeLayout>
 
         <TextView
+            android:visibility="gone"
+            android:textColor="@color/colorbackground"
+            android:layout_marginEnd="5dp"
             android:id="@+id/rank"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginEnd="5dp"
             android:fontFamily="@font/amiko"
-            android:paddingStart="10dp"
-            android:paddingEnd="5dp"
-            android:textColor="@color/colorbackground"
-            android:textSize="14sp"
-            android:visibility="gone" />
+            android:paddingLeft="10dp"
+            android:paddingRight="5dp"
+            android:textSize="14sp" />
 
 
         <co.blankkeys.animatedlinegraphview.AnimatedLineGraphView
             android:id="@+id/graph"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_centerVertical="true"
-            android:layout_toStartOf="@+id/coin_price"
-            android:layout_toEndOf="@+id/inner_lay"
+            app:lineThickness="3"
             app:circleRadius="5"
-            app:lineThickness="3" />
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/coin_price"
+            android:layout_toRightOf="@+id/inner_lay"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"/>
 
         <TextView
             android:id="@+id/coin_name"
@@ -128,25 +126,24 @@
             android:visibility="gone" />
 
         <TextView
+            android:textSize="16sp"
             android:id="@+id/coin_price"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="4dp"
-            android:layout_toStartOf="@id/favourite_icon"
+            android:layout_marginRight="8dp"
+            android:layout_toLeftOf="@id/favourite_icon"
             android:fontFamily="@font/amiko"
             android:paddingTop="10dp"
             android:textColor="@color/common_google_signin_btn_text_dark_focused"
-            android:textSize="16sp"
             android:textStyle="bold" />
-
         <TextView
             android:id="@+id/mcap"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/coin_price"
-            android:layout_marginEnd="4dp"
-            android:layout_toStartOf="@id/favourite_icon"
+            android:layout_marginRight="8dp"
+            android:layout_toLeftOf="@id/favourite_icon"
             android:fontFamily="@font/amiko"
-            android:textSize="12sp" />
+            android:textSize="14sp"/>
     </RelativeLayout>
 </com.google.android.material.card.MaterialCardView>

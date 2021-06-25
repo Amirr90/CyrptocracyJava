@@ -9,7 +9,6 @@ import com.e.cryptocracy.AppContext;
 import com.e.cryptocracy.Interface.RetrofitService;
 import com.e.cryptocracy.models.TweetModel;
 
-
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -44,11 +43,9 @@ public class Repository {
             @Override
             public void onResponse(@NotNull Call<List<TweetModel>> call, @NotNull Response<List<TweetModel>> response) {
                 if (response.code() == 200 && response.body() != null) {
-
-
                     tweetList.setValue(response.body());
-                } else
-                    Toast.makeText(AppContext.context, "try again !!", Toast.LENGTH_SHORT).show();
+                }
+
 
             }
 

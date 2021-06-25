@@ -27,27 +27,21 @@ import com.e.cryptocracy.Interface.RetrofitService;
 import com.e.cryptocracy.Model.CoinModal;
 import com.e.cryptocracy.R;
 import com.e.cryptocracy.interfaces.onLoadMoreInterface;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
 import com.wang.avi.AVLoadingIndicatorView;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Currency;
 import java.util.List;
-
-import javax.annotation.Nullable;
 
 import co.blankkeys.animatedlinegraphview.AnimatedLineGraphView;
 import retrofit2.Call;
@@ -101,15 +95,12 @@ public class FavouriteFragment extends Fragment {
         dialog = new ProgressDialog(context);
         dialog.setMessage("Removing, please wait...");
         loadFavCoinData(dialog);
-        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                progress.setVisibility(View.VISIBLE);
-                recyclerView.removeAllViews();
-                coinFavList.clear();
-                recyclerView.removeAllViews();
-                loadFavCoinData(1);
-            }
+        refreshLayout.setOnRefreshListener(() -> {
+            progress.setVisibility(View.VISIBLE);
+            recyclerView.removeAllViews();
+            coinFavList.clear();
+            recyclerView.removeAllViews();
+            loadFavCoinData(1);
         });
         return view;
     }
@@ -117,64 +108,62 @@ public class FavouriteFragment extends Fragment {
     private void loadFavCoinData(int currentPage) {
         CURRENT_PAGE = currentPage;
         FavRef.get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            if (!task.getResult().isEmpty()) {
-                                coinFavList.clear();
-                                StringBuilder builder = new StringBuilder();
-                                //get All fav Coins Ids using FireStore
-                                QuerySnapshot snapshot = task.getResult();
-                                for (int a = 0; a < task.getResult().size(); a++) {
-                                    builder.append(snapshot.getDocuments().get(a).getId() + ",");
-                                }
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
 
-                                //get favCoin Using Gecko API
-                                Retrofit retrofit = new Retrofit.Builder()
-                                        .baseUrl("https://api.coingecko.com/")
-                                        .addConverterFactory(GsonConverterFactory.create())
-                                        .build();
-                                RetrofitService uploadInterFace = retrofit.create(RetrofitService.class);
-                                Call<List<CoinModal>> call = uploadInterFace.getAllFavCoins(HomeScreen.CURRENCY, builder.toString(), HomeScreen.PER_PAGE, CURRENT_PAGE, HomeScreen.SORT_ORDER, true);
-
-                                call.enqueue(new Callback<List<CoinModal>>() {
-                                    @Override
-                                    public void onResponse(Call<List<CoinModal>> call, Response<List<CoinModal>> response) {
-                                        if (refreshLayout.isRefreshing()) {
-                                            refreshLayout.setRefreshing(false);
-                                        }
-                                        progress.setVisibility(View.GONE);
-
-                                        if (response.isSuccessful() && !response.body().isEmpty()) {
-                                            coinFavList.addAll(response.body());
-                                            adapter.notifyDataSetChanged();
-                                        } else {
-                                            //Call retry layout here
-                                            progress.setVisibility(View.GONE);
-                                            Toast.makeText(context, "error " + response.errorBody(), Toast.LENGTH_SHORT).show();
-                                        }
-
-                                    }
-
-                                    @Override
-                                    public void onFailure(Call<List<CoinModal>> call, Throwable t) {
-                                        Toast.makeText(getActivity(), "ERROR " + t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                                        if (refreshLayout.isRefreshing()) {
-                                            refreshLayout.setRefreshing(false);
-                                        }
-                                        progress.setVisibility(View.GONE);
-
-                                    }
-                                });
-                            } else {
-                                //show no fav coins layout
-                                if (refreshLayout.isRefreshing()) {
-                                    refreshLayout.setRefreshing(false);
-                                }
-                                progress.setVisibility(View.GONE);
-                                Toast.makeText(context, "No fav Coins", Toast.LENGTH_SHORT).show();
+                        if (!task.getResult().isEmpty()) {
+                            StringBuilder builder = new StringBuilder();
+                            //get All fav Coins Ids using FireStore
+                            QuerySnapshot snapshot = task.getResult();
+                            for (int a = 0; a < task.getResult().size(); a++) {
+                                builder.append(snapshot.getDocuments().get(a).getId() + ",");
                             }
+
+                            //get favCoin Using Gecko API
+                            Retrofit retrofit = new Retrofit.Builder()
+                                    .baseUrl("https://api.coingecko.com/")
+                                    .addConverterFactory(GsonConverterFactory.create())
+                                    .build();
+                            RetrofitService uploadInterFace = retrofit.create(RetrofitService.class);
+                            Call<List<CoinModal>> call = uploadInterFace.getAllFavCoins(HomeScreen.CURRENCY, builder.toString(), HomeScreen.PER_PAGE, CURRENT_PAGE, HomeScreen.SORT_ORDER, true);
+
+                            call.enqueue(new Callback<List<CoinModal>>() {
+                                @Override
+                                public void onResponse(Call<List<CoinModal>> call, Response<List<CoinModal>> response) {
+                                    if (refreshLayout.isRefreshing()) {
+                                        refreshLayout.setRefreshing(false);
+                                    }
+                                    progress.setVisibility(View.GONE);
+
+                                    if (response.isSuccessful() && !response.body().isEmpty()) {
+                                        coinFavList.clear();
+                                        coinFavList.addAll(response.body());
+                                        adapter.notifyDataSetChanged();
+                                    } else {
+                                        //Call retry layout here
+                                        progress.setVisibility(View.GONE);
+                                        Toast.makeText(context, "error " + response.errorBody(), Toast.LENGTH_SHORT).show();
+                                    }
+
+                                }
+
+                                @Override
+                                public void onFailure(@NotNull Call<List<CoinModal>> call, @NotNull Throwable t) {
+                                    Toast.makeText(getActivity(), "ERROR " + t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                                    if (refreshLayout.isRefreshing()) {
+                                        refreshLayout.setRefreshing(false);
+                                    }
+                                    progress.setVisibility(View.GONE);
+
+                                }
+                            });
+                        } else {
+                            //show no fav coins layout
+                            if (refreshLayout.isRefreshing()) {
+                                refreshLayout.setRefreshing(false);
+                            }
+                            progress.setVisibility(View.GONE);
+                            Toast.makeText(context, "No fav Coins", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -182,72 +171,69 @@ public class FavouriteFragment extends Fragment {
 
     public void loadFavCoinData(final ProgressDialog dialog) {
         onLoadMoreInterface.onLoadMore(dialog);
-        FavRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                if (e == null) {
-                    if (queryDocumentSnapshots != null) {
-                        coinFavList.clear();
-                        StringBuilder builder = new StringBuilder();
-                        //get All fav Coins Ids using FireStore
-                        List<DocumentSnapshot> snapshot = queryDocumentSnapshots.getDocuments();
-                        for (DocumentSnapshot snapshot1 : snapshot) {
-                            builder.append(snapshot1.getId() + ",");
-                        }
-
-                        //get fav CoinPrice Using Gecko API
-                        Retrofit retrofit = new Retrofit.Builder()
-                                .baseUrl("https://api.coingecko.com/")
-                                .addConverterFactory(GsonConverterFactory.create())
-                                .build();
-                        RetrofitService uploadInterFace = retrofit.create(RetrofitService.class);
-                        Call<List<CoinModal>> call = uploadInterFace.getAllFavCoins(HomeScreen.CURRENCY, builder.toString(), HomeScreen.PER_PAGE, CURRENT_PAGE, HomeScreen.SORT_ORDER, true);
-
-                        call.enqueue(new Callback<List<CoinModal>>() {
-                            @Override
-                            public void onResponse(Call<List<CoinModal>> call, Response<List<CoinModal>> response) {
-                                if (refreshLayout.isRefreshing()) {
-                                    refreshLayout.setRefreshing(false);
-                                }
-                                progress.setVisibility(View.GONE);
-                                if (response.isSuccessful() && !response.body().isEmpty()) {
-                                    coinFavList.addAll(response.body());
-                                    adapter.notifyDataSetChanged();
-                                    dialog.dismiss();
-                                    if (progress != null)
-                                        progress.setVisibility(View.GONE);
-                                } else {
-                                    //Call retry layout here
-                                    if (progress != null)
-                                        progress.setVisibility(View.GONE);
-                                    dialog.dismiss();
-                                    Toast.makeText(context, "error " + response.errorBody(), Toast.LENGTH_SHORT).show();
-                                }
-
-                            }
-
-                            @Override
-                            public void onFailure(Call<List<CoinModal>> call, Throwable t) {
-                                if (refreshLayout.isRefreshing()) {
-                                    refreshLayout.setRefreshing(false);
-                                }
-                                progress.setVisibility(View.GONE);
-                                Toast.makeText(getActivity(), "failed to read ", Toast.LENGTH_SHORT).show();
-
-                                coinFavList.clear();
-                                adapter.notifyDataSetChanged();
-                            }
-                        });
-                    } else {
-                        //show no fav coins layout
-                        if (refreshLayout.isRefreshing()) {
-                            refreshLayout.setRefreshing(false);
-                        }
-                        progress.setVisibility(View.GONE);
-                        coinFavList.clear();
-                        adapter.notifyDataSetChanged();
-
+        FavRef.addSnapshotListener((queryDocumentSnapshots, e) -> {
+            if (e == null) {
+                if (queryDocumentSnapshots != null) {
+                    coinFavList.clear();
+                    StringBuilder builder = new StringBuilder();
+                    //get All fav Coins Ids using FireStore
+                    List<DocumentSnapshot> snapshot = queryDocumentSnapshots.getDocuments();
+                    for (DocumentSnapshot snapshot1 : snapshot) {
+                        builder.append(snapshot1.getId() + ",");
                     }
+
+                    //get fav CoinPrice Using Gecko API
+                    Retrofit retrofit = new Retrofit.Builder()
+                            .baseUrl("https://api.coingecko.com/")
+                            .addConverterFactory(GsonConverterFactory.create())
+                            .build();
+                    RetrofitService uploadInterFace = retrofit.create(RetrofitService.class);
+                    Call<List<CoinModal>> call = uploadInterFace.getAllFavCoins(HomeScreen.CURRENCY, builder.toString(), HomeScreen.PER_PAGE, CURRENT_PAGE, HomeScreen.SORT_ORDER, true);
+
+                    call.enqueue(new Callback<List<CoinModal>>() {
+                        @Override
+                        public void onResponse(Call<List<CoinModal>> call, Response<List<CoinModal>> response) {
+                            if (refreshLayout.isRefreshing()) {
+                                refreshLayout.setRefreshing(false);
+                            }
+                            progress.setVisibility(View.GONE);
+                            if (response.isSuccessful() && !response.body().isEmpty()) {
+                                coinFavList.addAll(response.body());
+                                adapter.notifyDataSetChanged();
+                                dialog.dismiss();
+                                if (progress != null)
+                                    progress.setVisibility(View.GONE);
+                            } else {
+                                //Call retry layout here
+                                if (progress != null)
+                                    progress.setVisibility(View.GONE);
+                                dialog.dismiss();
+                                Toast.makeText(context, "error " + response.errorBody(), Toast.LENGTH_SHORT).show();
+                            }
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<List<CoinModal>> call, Throwable t) {
+                            if (refreshLayout.isRefreshing()) {
+                                refreshLayout.setRefreshing(false);
+                            }
+                            progress.setVisibility(View.GONE);
+                            Toast.makeText(getActivity(), "failed to read ", Toast.LENGTH_SHORT).show();
+
+                            coinFavList.clear();
+                            adapter.notifyDataSetChanged();
+                        }
+                    });
+                } else {
+                    //show no fav coins layout
+                    if (refreshLayout.isRefreshing()) {
+                        refreshLayout.setRefreshing(false);
+                    }
+                    progress.setVisibility(View.GONE);
+                    coinFavList.clear();
+                    adapter.notifyDataSetChanged();
+
                 }
             }
         });
@@ -274,7 +260,7 @@ public class FavouriteFragment extends Fragment {
         @NonNull
         @Override
         public FavCoinAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-            View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.coin_view, viewGroup, false);
+            View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.fav_coin_view, viewGroup, false);
 
             return new MyViewHolder(view);
         }
@@ -317,27 +303,16 @@ public class FavouriteFragment extends Fragment {
                 );
             });
 
-            myViewHolder.favIcon.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    dialog.show();
-                    String coinId = coinList.get(position).getId();
-                    favRef.document(coinId)
-                            .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            adapter.notifyItemRemoved(position);
-                            adapter.notifyDataSetChanged();
-                            loadFavCoinData(dialog);
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            dialog.dismiss();
-                        }
-                    });
+            myViewHolder.favIcon.setOnClickListener(view -> {
+                dialog.show();
+                String coinId = coinList.get(position).getId();
+                favRef.document(coinId)
+                        .delete().addOnSuccessListener(aVoid -> {
+                    adapter.notifyItemRemoved(position);
+                    adapter.notifyDataSetChanged();
+                    loadFavCoinData(dialog);
+                }).addOnFailureListener(e -> dialog.dismiss());
 
-                }
             });
 
 

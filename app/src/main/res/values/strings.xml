@@ -183,4 +183,6 @@
     <string name="quick_converter">Quick Converter</string>
     <string name="coin">Coin</string>
     <string name="quick_calculator">Quick Calculator</string>
+    <string name="view_more">View more</string>
+    <string name="latest_tweets">Latest Tweets</string>
 </resources>

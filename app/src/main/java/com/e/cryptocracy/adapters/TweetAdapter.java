@@ -43,6 +43,11 @@ public class TweetAdapter extends ListAdapter<TweetModel, TweetAdapter.TweetVH> 
         }
     }
 
+  /*  @Override
+    public int getItemCount() {
+        return Math.min(super.getItemCount(), 5);
+    }*/
+
     public static DiffUtil.ItemCallback<TweetModel> itemCallback = new DiffUtil.ItemCallback<TweetModel>() {
         @Override
         public boolean areItemsTheSame(@NonNull TweetModel oldItem, @NonNull TweetModel newItem) {

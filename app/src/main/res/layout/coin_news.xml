@@ -20,10 +20,10 @@
 
 
         <de.hdodenhof.circleimageview.CircleImageView
-            android:loadImage="@{tweet.user_image_link}"
             android:id="@+id/circleImageView"
             android:layout_width="50dp"
             android:layout_height="50dp"
+            android:loadImage="@{tweet.user_image_link}"
             android:src="@drawable/ic_launcher_background"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -54,8 +54,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="@{tweet.status}"
             android:autoLink="web"
+            android:text="@{tweet.status}"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:textColor="@color/common_google_signin_btn_text_dark_focused"
             app:layout_constraintEnd_toEndOf="parent"
@@ -88,7 +88,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:gravity="center"
-            android:text="@{tweet.retweet_count.toString()}"
+            android:text="@{tweet.retweet_count+` Tweets `}"
             app:layout_constraintBottom_toBottomOf="@+id/imageView5"
             app:layout_constraintStart_toEndOf="@+id/imageView5"
             app:layout_constraintTop_toTopOf="@+id/imageView5" />
@@ -108,7 +108,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="@{tweet.like_count.toString()}"
+            android:text="@{tweet.like_count+` Likes`}"
             app:layout_constraintBottom_toBottomOf="@+id/imageView6"
             app:layout_constraintStart_toEndOf="@+id/imageView6"
             app:layout_constraintTop_toTopOf="@+id/imageView6" />

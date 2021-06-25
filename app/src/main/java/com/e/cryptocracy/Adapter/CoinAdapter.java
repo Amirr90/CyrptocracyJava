@@ -70,7 +70,7 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.MyViewHolder> 
         format.setCurrency(Currency.getInstance(HomeScreen.CURRENCY));
 
 
-        setFavIcon(myViewHolder, position);
+        //setFavIcon(myViewHolder, position);
         myViewHolder.title.setText(coinList.get(position).getName());
         myViewHolder.mCap.setText("MCap: " + format(COIN_MCAP));
         myViewHolder.coin_price.setText(format.format(COIN_PRICE));
@@ -99,14 +99,14 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.MyViewHolder> 
             );
         });
 
-        myViewHolder.favIcon.setOnClickListener(view -> {
+        /*myViewHolder.favIcon.setOnClickListener(view -> {
             String coinId = coinList.get(position).getId();
             myViewHolder.favIcon.setImageResource(R.drawable.ic_star_filled);
             favRef.document(coinId)
                     .set(new Favourite(coinId))
                     .addOnCompleteListener(task -> Toast.makeText(context, "added", Toast.LENGTH_SHORT).show())
                     .addOnFailureListener(e -> myViewHolder.favIcon.setImageResource(R.drawable.ic_star_border_black_24dp));
-        });
+        });*/
 
 
     }

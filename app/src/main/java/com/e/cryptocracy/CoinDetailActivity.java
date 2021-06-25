@@ -98,7 +98,7 @@ public class CoinDetailActivity extends AppCompatActivity {
 
 
     //Add
-    FrameLayout adContainerView, adContainerView2;
+    FrameLayout adContainerView;
     AdView adView, mAdView;
     AdRequest adRequest, adRequest2;
 
@@ -111,6 +111,7 @@ public class CoinDetailActivity extends AppCompatActivity {
     RecyclerView tweetRec;
 
     AppComponent appComponent;
+    String str;
 
     @SuppressLint("NonConstantResourceId")
     @Override
@@ -142,12 +143,16 @@ public class CoinDetailActivity extends AppCompatActivity {
 
             String coinName = getIntent().getStringExtra("coinName");
             String coinSymbol = getIntent().getStringExtra("coinSymbol");
-            Log.d(TAG, "onCreate: " + coinName + coinSymbol);
 
-            String str = "doge-dogecoin".trim();
+
+            str = coinSymbol.toLowerCase() + "-" + coinName.toLowerCase().trim();
+            Log.d(TAG, "onCreate: " + str);
             viewModel.tweetList(str).observe(this, tweetModels -> {
                 Log.d(TAG, "onCreate: tweetModels " + tweetModels.size());
                 tweetAdapter.submitList(tweetModels);
+                tweetRec.setVisibility(tweetModels.isEmpty() ? View.GONE : View.VISIBLE);
+
+
             });
 
         } else {
@@ -259,7 +264,6 @@ public class CoinDetailActivity extends AppCompatActivity {
 
         mProfileImage = findViewById(R.id.profile_image);
         adContainerView = findViewById(R.id.ad_view_container2);
-        adContainerView2 = findViewById(R.id.ad_view_container3);
 
         format = NumberFormat.getCurrencyInstance();
         format.setMaximumFractionDigits(6);
@@ -272,8 +276,7 @@ public class CoinDetailActivity extends AppCompatActivity {
         coinQty = findViewById(R.id.etCoinQty);
         coinPriceConverted = findViewById(R.id.textPriceConverted);
         tweetRec = findViewById(R.id.recCoinNews);
-
-
+        tweetRec = findViewById(R.id.recCoinNews);
         coinQty.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -299,6 +302,7 @@ public class CoinDetailActivity extends AppCompatActivity {
             }
         });
         initAds();
+
 
     }
 
@@ -403,7 +407,7 @@ public class CoinDetailActivity extends AppCompatActivity {
                     //set Price Percentage
                     TextView price_percentage = findViewById(R.id.change_percentage);
                     float pri_percentage = list.get(0).getPrice_change_percentage_24h();
-                    price_percentage.setText(pri_percentage + "%");
+                    price_percentage.setText(new DecimalFormat("0.##").format(pri_percentage) + "%");
                     if (pri_percentage > 0) {
                         price_percentage.setTextColor(getResources().getColor(R.color.green));
                         imageView.setImageResource(R.mipmap.sort_up);
@@ -563,12 +567,9 @@ public class CoinDetailActivity extends AppCompatActivity {
         pair = toolbar.findViewById(R.id.pairing);
         mCoinName = toolbar.findViewById(R.id.name_coin);
 
-        pair.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                progressBar.setVisibility(View.VISIBLE);
-                dialogSheet.show();
-            }
+        pair.setOnClickListener(view -> {
+            progressBar.setVisibility(View.VISIBLE);
+            dialogSheet.show();
         });
     }
 

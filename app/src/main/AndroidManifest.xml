@@ -11,26 +11,26 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/small_logo"
         android:supportsRtl="true"
-        android:usesCleartextTraffic="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true">
+        <activity android:name=".activity.TweetsActivity"></activity>
         <activity android:name=".WebViewActivity" />
         <activity
             android:name=".ExchangeActivity"
             android:label="@string/title_activity_exchange"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-
             android:name=".SearchActivity"
             android:label="@string/title_activity_search"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-
             android:name=".CoinDetailActivity"
             android:label="@string/title_activity_coin_detail"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".HomeScreen">
             <intent-filter>
                 <action android:name="com.cryptocracy.price_alert_notification" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -52,14 +52,13 @@
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
-        </service>
-
-        <!--    Testing Meta data-->
-        <!--        <meta-data
+        </service> <!-- Testing Meta data -->
+        <!--
+        <meta-data
                     android:name="com.google.android.gms.ads.APPLICATION_ID"
-                    android:value="ca-app-pub-3940256099942544~3347511713"/>-->
-
-        <!--    Live Meta data-->
+                    android:value="ca-app-pub-3940256099942544~3347511713"/>
+        -->
+        <!-- Live Meta data -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-5778282166425967~4351577276" />
