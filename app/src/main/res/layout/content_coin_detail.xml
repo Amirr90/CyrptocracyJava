@@ -389,6 +389,7 @@
             android:layout_height="wrap_content"
             android:background="@android:color/white"
             android:padding="10dp"
+            android:layout_gravity="center_horizontal"
             android:visibility="visible"
             app:tbgCheckedButton="@+id/choice_24h">
 
@@ -799,6 +800,7 @@
         </androidx.cardview.widget.CardView>
 
         <TextView
+            android:id="@+id/tvLatestTweets"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
@@ -812,6 +814,7 @@
             android:textColor="@color/colorPrimaryDark"
             android:textSize="18sp"
             android:textStyle="bold"
+            android:visibility="gone"
             app:drawableRightCompat="@drawable/ic_icons_twitter" />
 
         <androidx.recyclerview.widget.RecyclerView

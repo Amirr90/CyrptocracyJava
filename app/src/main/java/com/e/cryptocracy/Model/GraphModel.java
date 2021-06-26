@@ -1,15 +1,15 @@
 package com.e.cryptocracy.Model;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class GraphModel {
 
-    ArrayList<ArrayList<Float>> prices = new ArrayList<ArrayList<Float>>();
-    ArrayList<ArrayList<Float>> market_caps = new ArrayList<ArrayList<Float>>();
-    ArrayList<ArrayList<Float>> total_volumes = new ArrayList<ArrayList<Float>>();
+    //  ArrayList<ArrayList<Double>> prices = new ArrayList<>();
+    Number[][] prices = new Number[][]{};
+    ArrayList<ArrayList<Float>> market_caps = new ArrayList<>();
+    ArrayList<ArrayList<Float>> total_volumes = new ArrayList<>();
 
-    public ArrayList<ArrayList<Float>> getPrices() {
+    public Number[][] getPrices() {
         return prices;
     }
 

@@ -4,6 +4,7 @@ package com.e.cryptocracy.Fragments;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,11 +32,16 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.wang.avi.AVLoadingIndicatorView;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nullable;
 
+import okhttp3.Dispatcher;
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -44,6 +50,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 @SuppressLint("ValidFragment")
 public class CoinFragment extends Fragment {
+    private static final String TAG = "CoinFragment";
 
     Context context;
     CoinAdapter adapter;
@@ -116,23 +123,41 @@ public class CoinFragment extends Fragment {
         return view;
     }
 
+
+    public OkHttpClient.Builder provideHttpClient() {
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+        OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+
+        Dispatcher dispatcher = new Dispatcher();
+        dispatcher.setMaxRequests(1);
+
+        httpClient.addInterceptor(logging);
+        httpClient.dispatcher(dispatcher);
+        return httpClient;
+    }
+
+
     private void loadCoinData(int currentPage) {
         onLoadMoreInterface.onLoadMore(currentPage);
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.coingecko.com/")
                 .addConverterFactory(GsonConverterFactory.create())
+                .client(provideHttpClient().build())
                 .build();
         RetrofitService uploadInterFace = retrofit.create(RetrofitService.class);
         Call<List<CoinModal>> call = uploadInterFace.getAllCoins(HomeScreen.CURRENCY, HomeScreen.PER_PAGE, currentPage, HomeScreen.SORT_ORDER, true);
         call.enqueue(new Callback<List<CoinModal>>() {
             @Override
-            public void onResponse(Call<List<CoinModal>> call, Response<List<CoinModal>> response) {
-                if (response.isSuccessful() && !response.body().isEmpty()) {
+            public void onResponse(@NotNull Call<List<CoinModal>> call, @NotNull Response<List<CoinModal>> response) {
+                if (response.isSuccessful() && response.body() != null) {
                     coinModalList.addAll(response.body());
                     adapter.notifyDataSetChanged();
                 } else {
                     //Call retry layout here
-                    Toast.makeText(context, "error " + response.message(), Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "onResponse: error code " + response.code());
+                    Toast.makeText(context, "error " + response.code() + " msg: " + response.message(), Toast.LENGTH_SHORT).show();
                 }
                 progress.setVisibility(View.GONE);
                 if (refreshLayout.isRefreshing())
@@ -142,7 +167,7 @@ public class CoinFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<List<CoinModal>> call, Throwable t) {
+            public void onFailure(@NotNull Call<List<CoinModal>> call, @NotNull Throwable t) {
                 Toast.makeText(getActivity(), t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
             }
         });

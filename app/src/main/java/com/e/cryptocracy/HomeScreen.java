@@ -1,6 +1,5 @@
 package com.e.cryptocracy;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -14,28 +13,19 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
 import androidx.viewpager.widget.ViewPager;
 
 import com.e.cryptocracy.Adapter.ViewPagerAdapter;
 import com.e.cryptocracy.Fragments.CoinFragment;
 import com.e.cryptocracy.Fragments.ExchangeFragment;
 import com.e.cryptocracy.Fragments.FavouriteFragment;
-import com.e.cryptocracy.adapters.TweetAdapter;
-import com.e.cryptocracy.component.AppComponent;
 import com.e.cryptocracy.interfaces.onLoadMoreInterface;
-import com.e.cryptocracy.models.TweetModel;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.initialization.InitializationStatus;
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -44,10 +34,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import javax.inject.Inject;
 
 public class HomeScreen extends AppCompatActivity {
     static public TextView titleText;
@@ -68,8 +55,6 @@ public class HomeScreen extends AppCompatActivity {
     FrameLayout adContainerView;
     AdView adView;
     AdRequest adRequest;
-
-
 
 
     @Override
@@ -100,7 +85,6 @@ public class HomeScreen extends AppCompatActivity {
         setFragment();
 
 
-
         mChangeCurrencyText.setOnClickListener(view -> changeCurrencyDialog());
 
         mSearchIcon.setOnClickListener(view -> startActivity(new Intent(HomeScreen.this, SearchActivity.class)));
@@ -116,7 +100,6 @@ public class HomeScreen extends AppCompatActivity {
 
     private void initAds() {
         MobileAds.initialize(this, initializationStatus -> {
-            Log.d(TAG, "onInitializationComplete: ");
             setUpAds();
         });
     }
@@ -254,8 +237,8 @@ public class HomeScreen extends AppCompatActivity {
         ViewPager pager = findViewById(R.id.view_pager);
         ViewPagerAdapter pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         pagerAdapter.Addfragment(new CoinFragment(HomeScreen.this, onLoadMoreInterface), "Market");
-        pagerAdapter.Addfragment(new FavouriteFragment(HomeScreen.this,onLoadMoreInterface), "Favourite");
-        pagerAdapter.Addfragment(new ExchangeFragment(HomeScreen.this,onLoadMoreInterface), "Exchanges");
+        pagerAdapter.Addfragment(new FavouriteFragment(HomeScreen.this, onLoadMoreInterface), "Favourite");
+        pagerAdapter.Addfragment(new ExchangeFragment(HomeScreen.this, onLoadMoreInterface), "Exchanges");
 
         pager.setAdapter(pagerAdapter);
         tabLayout.setupWithViewPager(pager);

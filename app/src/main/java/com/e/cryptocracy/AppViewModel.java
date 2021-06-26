@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.e.cryptocracy.Model.GraphModel;
 import com.e.cryptocracy.models.TweetModel;
 import com.e.cryptocracy.repo.Repository;
 import com.google.gson.internal.JsonReaderInternalAccess;
@@ -27,5 +28,9 @@ public class AppViewModel extends ViewModel {
     public LiveData<List<TweetModel>> tweetList(String coinIdAndSymbol) {
         Log.d(TAG, "tweetList: "+ coinIdAndSymbol);
         return apiRepository.getTweetList(coinIdAndSymbol);
+    }
+
+    public LiveData<GraphModel> getGraphData(String days, String coin_id) {
+        return apiRepository.getGraphData(days,coin_id);
     }
 }

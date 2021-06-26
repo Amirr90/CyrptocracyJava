@@ -6,11 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +14,12 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.e.cryptocracy.ExchangeActivity;
 import com.e.cryptocracy.Interface.RetrofitService;
@@ -39,6 +40,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+
+import static com.e.cryptocracy.module.AppUrl.BASE_URL_coinGecko;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -63,7 +66,7 @@ public class ExchangeMarket extends Fragment {
     public ExchangeMarket(Context context, String EXCHANGE_ID) {
         this.context = context;
         this.EXCHANGE_ID = EXCHANGE_ID;
-        adapter = new ExchangeMarketAdapter( tickers, context );
+        adapter = new ExchangeMarketAdapter(tickers, context);
     }
 
 
@@ -71,30 +74,30 @@ public class ExchangeMarket extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate( R.layout.fragment_exchange_market, container, false );
+        View view = inflater.inflate(R.layout.fragment_exchange_market, container, false);
 
 
-        recyclerView = view.findViewById( R.id.ex_market_recycler );
-        progress = view.findViewById( R.id.ex_progress_avi );
-        refreshLayout = view.findViewById( R.id.ex_mar_swiperefresh );
-        layoutManager = new LinearLayoutManager( context );
-        recyclerView.setLayoutManager( layoutManager );
-        recyclerView.setAdapter( adapter );
+        recyclerView = view.findViewById(R.id.ex_market_recycler);
+        progress = view.findViewById(R.id.ex_progress_avi);
+        refreshLayout = view.findViewById(R.id.ex_mar_swiperefresh);
+        layoutManager = new LinearLayoutManager(context);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(adapter);
         loadData();
 
-        recyclerView.addOnScrollListener( new RecyclerView.OnScrollListener() {
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged( recyclerView, newState );
+                super.onScrollStateChanged(recyclerView, newState);
                 if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
-                    progress.setVisibility( View.GONE );
+                    progress.setVisibility(View.GONE);
                 }
 
             }
 
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled( recyclerView, dx, dy );
+                super.onScrolled(recyclerView, dx, dy);
                 TOTAL_ITEM = layoutManager.getItemCount() / 2;
                 CURRENT_ITEM = layoutManager.getChildCount();
                 ITEM_VIEWED = ((LinearLayoutManager) layoutManager).findFirstVisibleItemPosition();
@@ -109,56 +112,56 @@ public class ExchangeMarket extends Fragment {
 
 
             }
-        } );
-        refreshLayout.setOnRefreshListener( new SwipeRefreshLayout.OnRefreshListener() {
+        });
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                progress.setVisibility( View.VISIBLE );
+                progress.setVisibility(View.VISIBLE);
                 recyclerView.removeAllViews();
                 tickers.clear();
                 recyclerView.removeAllViews();
                 loadData();
             }
-        } );
+        });
         return view;
     }
 
     private void setVisibility(boolean b) {
         if (b) {
             isShowing = false;
-            Toast.makeText( getActivity(), "hide", Toast.LENGTH_SHORT ).show();
+            Toast.makeText(getActivity(), "hide", Toast.LENGTH_SHORT).show();
         } else {
             isShowing = true;
-            Toast.makeText( getActivity(), "show", Toast.LENGTH_SHORT ).show();
+            Toast.makeText(getActivity(), "show", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void loadData() {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl( "https://api.coingecko.com/" )
-                .addConverterFactory( GsonConverterFactory.create() )
+                .baseUrl(BASE_URL_coinGecko)
+                .addConverterFactory(GsonConverterFactory.create())
                 .build();
-        RetrofitService uploadInterFace = retrofit.create( RetrofitService.class );
+        RetrofitService uploadInterFace = retrofit.create(RetrofitService.class);
 
-        Call<ExchangeDetailModel> call = uploadInterFace.getExchangeDetailById( EXCHANGE_ID );
-        call.enqueue( new Callback<ExchangeDetailModel>() {
+        Call<ExchangeDetailModel> call = uploadInterFace.getExchangeDetailById(EXCHANGE_ID);
+        call.enqueue(new Callback<ExchangeDetailModel>() {
             @Override
             public void onResponse(Call<ExchangeDetailModel> call, Response<ExchangeDetailModel> response) {
 
-                progress.setVisibility( View.GONE );
+                progress.setVisibility(View.GONE);
                 if (!response.isSuccessful()) {
-                    Toast.makeText( getActivity(), "failed: try again", Toast.LENGTH_SHORT ).show();
+                    Toast.makeText(getActivity(), "failed: try again", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (response.body() != null) {
                     ExchangeDetailModel detailModel = response.body();
-                    setText( detailModel );
-                    setInfo( detailModel );
-                    tickers.addAll( detailModel.getTickers() );
+                    setText(detailModel);
+                    setInfo(detailModel);
+                    tickers.addAll(detailModel.getTickers());
                     adapter.notifyDataSetChanged();
-                    recyclerView.setVisibility( View.VISIBLE );
+                    recyclerView.setVisibility(View.VISIBLE);
                     if (refreshLayout.isRefreshing()) {
-                        refreshLayout.setRefreshing( false );
+                        refreshLayout.setRefreshing(false);
                     }
 
                 }
@@ -166,76 +169,76 @@ public class ExchangeMarket extends Fragment {
 
             @Override
             public void onFailure(Call<ExchangeDetailModel> call, Throwable t) {
-                Toast.makeText( getActivity(), "try again", Toast.LENGTH_SHORT ).show();
+                Toast.makeText(getActivity(), "try again", Toast.LENGTH_SHORT).show();
                 getActivity().finish();
             }
-        } );
+        });
     }
 
     private void setInfo(final ExchangeDetailModel detailModel) {
         final String link1 = detailModel.getOther_url_1();
         final String link2 = detailModel.getOther_url_2();
-        ExchangeInfo.year.setText( "" + detailModel.getYear_established() );
-        ExchangeInfo.Country.setText( "" + detailModel.getCountry() );
-        ExchangeInfo.TradingIncentive.setText( detailModel.isHas_trading_incentive() ? "Yes" : "No" );
-        ExchangeInfo.Link1.setText( link1 );
-        ExchangeInfo.Link2.setText( link2 );
+        ExchangeInfo.year.setText("" + detailModel.getYear_established());
+        ExchangeInfo.Country.setText("" + detailModel.getCountry());
+        ExchangeInfo.TradingIncentive.setText(detailModel.isHas_trading_incentive() ? "Yes" : "No");
+        ExchangeInfo.Link1.setText(link1);
+        ExchangeInfo.Link2.setText(link2);
 
-        ExchangeInfo.Link1.setOnClickListener( new View.OnClickListener() {
+        ExchangeInfo.Link1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                context.startActivity( new Intent( context, WebViewActivity.class ).putExtra( "url", link2 ) );
+                context.startActivity(new Intent(context, WebViewActivity.class).putExtra("url", link2));
             }
-        } );
+        });
 
-        ExchangeInfo.Link2.setOnClickListener( new View.OnClickListener() {
+        ExchangeInfo.Link2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                context.startActivity( new Intent( context, WebViewActivity.class ).putExtra( "url", link2 ) );
+                context.startActivity(new Intent(context, WebViewActivity.class).putExtra("url", link2));
             }
-        } );
+        });
 
-        ExchangeInfo.facebook.setOnClickListener( new View.OnClickListener() {
+        ExchangeInfo.facebook.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String facebookUrl = detailModel.getFacebook_url();
-                context.startActivity( new Intent( context, WebViewActivity.class ).putExtra( "url", facebookUrl ) );
+                context.startActivity(new Intent(context, WebViewActivity.class).putExtra("url", facebookUrl));
             }
-        } );
+        });
 
-        ExchangeInfo.homepage.setOnClickListener( new View.OnClickListener() {
+        ExchangeInfo.homepage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String homeUrl = detailModel.getUrl();
-                context.startActivity( new Intent( context, WebViewActivity.class ).putExtra( "url", homeUrl ) );
+                context.startActivity(new Intent(context, WebViewActivity.class).putExtra("url", homeUrl));
             }
-        } );
+        });
 
-        ExchangeInfo.reddit.setOnClickListener( new View.OnClickListener() {
+        ExchangeInfo.reddit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String redditUrl = detailModel.getReddit_url();
-                context.startActivity( new Intent( context, WebViewActivity.class ).putExtra( "url", redditUrl ) );
+                context.startActivity(new Intent(context, WebViewActivity.class).putExtra("url", redditUrl));
             }
-        } );
+        });
 
     }
 
     private void setText(ExchangeDetailModel detailModel) {
         try {
-            ExchangeActivity.trust_score_rank.setText( "Rank #" + detailModel.getTrust_score_rank() );
-            ExchangeActivity.trade_volume_24h_btc.setText( "BTC" + new DecimalFormat( "#,##0.##" ).format( detailModel.getTrade_volume_24h_btc() ) );
-            ExchangeActivity.trade_volume_24h_btc_normalized.setText( "24H Normalized BTC" + new DecimalFormat( "#,##0.##" ).format( detailModel.getTrade_volume_24h_btc_normalized() ) );
-            ExchangeActivity.trust_score.setText( "Trust " + detailModel.getTrust_score() + "/10" );
+            ExchangeActivity.trust_score_rank.setText("Rank #" + detailModel.getTrust_score_rank());
+            ExchangeActivity.trade_volume_24h_btc.setText("BTC" + new DecimalFormat("#,##0.##").format(detailModel.getTrade_volume_24h_btc()));
+            ExchangeActivity.trade_volume_24h_btc_normalized.setText("24H Normalized BTC" + new DecimalFormat("#,##0.##").format(detailModel.getTrade_volume_24h_btc_normalized()));
+            ExchangeActivity.trust_score.setText("Trust " + detailModel.getTrust_score() + "/10");
             boolean centralized = detailModel.isCentralized();
             if (centralized) {
-                ExchangeActivity.centralized.setText( "CENTRALIZED" );
+                ExchangeActivity.centralized.setText("CENTRALIZED");
             } else {
-                ExchangeActivity.centralized.setText( "NON-CENTRALIZED" );
+                ExchangeActivity.centralized.setText("NON-CENTRALIZED");
             }
 
         } catch (Exception e) {
-            Toast.makeText( context, "error: " + e.getLocalizedMessage(), Toast.LENGTH_SHORT ).show();
+            Toast.makeText(context, "error: " + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -255,48 +258,48 @@ public class ExchangeMarket extends Fragment {
         @NonNull
         @Override
         public ExchangeMarketAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-            View view = LayoutInflater.from( context ).inflate( R.layout.exchange_market_view, viewGroup, false );
-            format.setMaximumFractionDigits( 6 );
-            format2.setMaximumFractionDigits( 2 );
-            return new MyViewHolder( view );
+            View view = LayoutInflater.from(context).inflate(R.layout.exchange_market_view, viewGroup, false);
+            format.setMaximumFractionDigits(6);
+            format2.setMaximumFractionDigits(2);
+            return new MyViewHolder(view);
         }
 
         @Override
         public void onBindViewHolder(@NonNull ExchangeMarketAdapter.MyViewHolder myViewHolder, final int i) {
 
             try {
-                String pair = tickers.get( i ).getBase() + "\n" + tickers.get( i ).getTarget();
-                myViewHolder.pair.setText( pair );
+                String pair = tickers.get(i).getBase() + "\n" + tickers.get(i).getTarget();
+                myViewHolder.pair.setText(pair);
 
 
-                float Price = tickers.get( i ).getLast();
-                float Volume = tickers.get( i ).getVolume();
+                float Price = tickers.get(i).getLast();
+                float Volume = tickers.get(i).getVolume();
 
-                if (tickers.get( i ).getTarget().length() == 3) {
-                    format.setCurrency( Currency.getInstance( tickers.get( i ).getTarget() ) );
-                    myViewHolder.price.setText( format.format( Price ) );
+                if (tickers.get(i).getTarget().length() == 3) {
+                    format.setCurrency(Currency.getInstance(tickers.get(i).getTarget()));
+                    myViewHolder.price.setText(format.format(Price));
                 } else {
-                    myViewHolder.price.setText( tickers.get( i ).getTarget() + new DecimalFormat( "#,##0.##" ).format( Price ) );
+                    myViewHolder.price.setText(tickers.get(i).getTarget() + new DecimalFormat("#,##0.##").format(Price));
                 }
 
-                myViewHolder.volume.setText( format2.format( Volume ) );
+                myViewHolder.volume.setText(format2.format(Volume));
 
-                String trust_score = tickers.get( i ).getTrust_score();
-                if (trust_score.equalsIgnoreCase( "green" ))
-                    myViewHolder.trustImage.setImageResource( R.drawable.green_cirle );
+                String trust_score = tickers.get(i).getTrust_score();
+                if (trust_score.equalsIgnoreCase("green"))
+                    myViewHolder.trustImage.setImageResource(R.drawable.green_cirle);
                 else {
-                    myViewHolder.trustImage.setImageResource( R.drawable.red_circle );
+                    myViewHolder.trustImage.setImageResource(R.drawable.red_circle);
                 }
 
-                myViewHolder.layout.setOnClickListener( new View.OnClickListener() {
+                myViewHolder.layout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        String Url = tickers.get( i ).getTrade_url();
-                        startActivity( new Intent( Intent.ACTION_VIEW,
-                                Uri.parse( Url ) ) );
+                        String Url = tickers.get(i).getTrade_url();
+                        startActivity(new Intent(Intent.ACTION_VIEW,
+                                Uri.parse(Url)));
 
                     }
-                } );
+                });
             } catch (Exception e) {
             }
 
@@ -315,13 +318,13 @@ public class ExchangeMarket extends Fragment {
             private final RelativeLayout layout;
 
             public MyViewHolder(@NonNull View itemView) {
-                super( itemView );
+                super(itemView);
 
-                pair = itemView.findViewById( R.id.textView13 );
-                price = itemView.findViewById( R.id.textView14 );
-                volume = itemView.findViewById( R.id.textView17 );
-                trustImage = itemView.findViewById( R.id.textView18 );
-                layout = itemView.findViewById( R.id.ex_header_lay );
+                pair = itemView.findViewById(R.id.textView13);
+                price = itemView.findViewById(R.id.textView14);
+                volume = itemView.findViewById(R.id.textView17);
+                trustImage = itemView.findViewById(R.id.textView18);
+                layout = itemView.findViewById(R.id.ex_header_lay);
             }
         }
     }

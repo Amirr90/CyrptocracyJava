@@ -2,10 +2,12 @@ package com.e.cryptocracy.module;
 
 import com.e.cryptocracy.Interface.RetrofitService;
 import com.highsoft.highcharts.common.hichartsclasses.HIExporting;
+import com.highsoft.highcharts.common.hichartsclasses.HILabels;
 import com.highsoft.highcharts.common.hichartsclasses.HILine;
 import com.highsoft.highcharts.common.hichartsclasses.HIOptions;
 import com.highsoft.highcharts.common.hichartsclasses.HIPlotOptions;
 import com.highsoft.highcharts.common.hichartsclasses.HITitle;
+import com.highsoft.highcharts.common.hichartsclasses.HIXAxis;
 import com.highsoft.highcharts.common.hichartsclasses.HIYAxis;
 
 import java.util.ArrayList;
@@ -45,7 +47,6 @@ public class AppModule {
         return httpClient;
     }
 
-
     @Singleton
     @Provides
     Retrofit provideRetrofit(OkHttpClient.Builder builder) {
@@ -79,15 +80,21 @@ public class AppModule {
     @Provides
     HIOptions provideHIOptions(HIPlotOptions plotOptions, HIExporting hiExporting) {
         HIOptions options = new HIOptions();
-        final HIYAxis yAxis = new HIYAxis();
+      /*  final HIYAxis yAxis = new HIYAxis();
         yAxis.setTitle(new HITitle());
         options.setYAxis(new ArrayList<HIYAxis>() {{
             add(yAxis);
+        }});*/
+
+        HIXAxis xAxis = new HIXAxis();
+        xAxis.setType("datetime");
+        xAxis.setLabels(new HILabels());
+        xAxis.getLabels().setOverflow("justify");
+        options.setXAxis(new ArrayList<HIXAxis>() {{
+            add(xAxis);
         }});
 
-        HITitle hiTitle = new HITitle();
-        hiTitle.setText("");
-        options.setTitle(hiTitle);
+
         plotOptions.setLine(new HILine());
         plotOptions.getLine().setEnableMouseTracking(true);
         options.setPlotOptions(plotOptions);

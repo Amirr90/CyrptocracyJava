@@ -35,11 +35,6 @@ import com.e.cryptocracy.component.AppComponent;
 import com.e.cryptocracy.component.DaggerAppComponent;
 import com.e.cryptocracy.module.AppModule;
 import com.e.cryptocracy.module.Management;
-import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineData;
-import com.github.mikephil.charting.data.LineDataSet;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
@@ -49,8 +44,16 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.highsoft.highcharts.common.hichartsclasses.HICSSObject;
+import com.highsoft.highcharts.common.hichartsclasses.HIHover;
+import com.highsoft.highcharts.common.hichartsclasses.HIMarker;
+import com.highsoft.highcharts.common.hichartsclasses.HINavigation;
 import com.highsoft.highcharts.common.hichartsclasses.HIOptions;
+import com.highsoft.highcharts.common.hichartsclasses.HIPlotOptions;
 import com.highsoft.highcharts.common.hichartsclasses.HISpline;
+import com.highsoft.highcharts.common.hichartsclasses.HIStates;
+import com.highsoft.highcharts.common.hichartsclasses.HITitle;
+import com.highsoft.highcharts.common.hichartsclasses.HITooltip;
 import com.highsoft.highcharts.core.HIChartView;
 import com.marcoscg.dialogsheet.DialogSheet;
 import com.nex3z.togglebuttongroup.SingleSelectToggleGroup;
@@ -80,7 +83,7 @@ public class CoinDetailActivity extends AppCompatActivity {
     FirebaseFirestore db;
     List<DataEntry> seriesData;
     TextView market_cap_rank, market_cap, T_volume, high24, low24, available_total,
-            allTime_high, since_allTimeHigh, allTimeHighDate, mName;
+            allTime_high, since_allTimeHigh, allTimeHighDate, mTvLatestTweets, mName;
     TextView H24, D7, D14, D30, D200, Y1;
     List<CoinPrice> list;
     private ProgressBar progressBar;
@@ -165,6 +168,7 @@ public class CoinDetailActivity extends AppCompatActivity {
                 Log.d(TAG, "onCreate: tweetModels " + tweetModels.size());
                 tweetAdapter.submitList(tweetModels);
                 tweetRec.setVisibility(tweetModels.isEmpty() ? View.GONE : View.VISIBLE);
+                mTvLatestTweets.setVisibility(tweetModels.isEmpty() ? View.GONE : View.VISIBLE);
 
 
             });
@@ -215,7 +219,8 @@ public class CoinDetailActivity extends AppCompatActivity {
 
 
     private void initDependency() {
-        appComponent = DaggerAppComponent.builder().appModule(new AppModule("")).build();
+        appComponent = DaggerAppComponent.builder()
+                .appModule(new AppModule("")).build();
         appComponent.inject(this);
     }
 
@@ -286,7 +291,7 @@ public class CoinDetailActivity extends AppCompatActivity {
         adContainerView = findViewById(R.id.ad_view_container2);
 
         format = NumberFormat.getCurrencyInstance();
-        format.setMaximumFractionDigits(6);
+        format.setMaximumFractionDigits(4);
         format.setCurrency(Currency.getInstance(HomeScreen.CURRENCY));
 
         mAdView = findViewById(R.id.adView);
@@ -299,6 +304,7 @@ public class CoinDetailActivity extends AppCompatActivity {
         tweetRec = findViewById(R.id.recCoinNews);
 
         chartView = findViewById(R.id.chartView);
+        mTvLatestTweets = findViewById(R.id.tvLatestTweets);
 
 
         coinQty.addTextChangedListener(new TextWatcher() {
@@ -420,8 +426,12 @@ public class CoinDetailActivity extends AppCompatActivity {
 
 
                     //set Price
+                    if (pri < 0.0001) {
+                        format.setMaximumFractionDigits(8);
+                    } else {
+                        format.setMaximumFractionDigits(3);
+                    }
                     price.setText(format.format(pri));
-
 
                     //setPair
                     if (list.get(0).getSymbol() != null && HomeScreen.CURRENCY != null)
@@ -501,106 +511,54 @@ public class CoinDetailActivity extends AppCompatActivity {
     }
 
     private void setGraphView(String DAYS, String COIN_ID) {
-        progressBar.setVisibility(View.VISIBLE);
         seriesData = new ArrayList<>();
-        //adding data
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://api.coingecko.com/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        RetrofitService GraphData = retrofit.create(RetrofitService.class);
-        Call<GraphModel> call = GraphData.getGraphData(COIN_ID, HomeScreen.CURRENCY, DAYS);
-        call.enqueue(new Callback<GraphModel>() {
-            @Override
-            public void onResponse(@NotNull Call<GraphModel> call, @NotNull Response<GraphModel> response) {
-                progressBar.setVisibility(View.GONE);
-                if (response.isSuccessful()) {
-                    if (response.body() != null) {
-                        if (!seriesData.isEmpty())
-                            seriesData.clear();
-                        GraphModel graphData = response.body();
-                        //loadChart(graphData);
-
-                        addData(graphData);
-
-                    } else {
-                        Toast.makeText(CoinDetailActivity.this, "no data ", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Toast.makeText(CoinDetailActivity.this, "response is not successful", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-
-            @Override
-            public void onFailure(@NotNull Call<GraphModel> call, @NotNull Throwable t) {
-                progressBar.setVisibility(View.GONE);
-                Log.e(TAG, "read error in graph data: " + t.getLocalizedMessage());
-                Toast.makeText(CoinDetailActivity.this, "try again " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-
-
+        viewModel.getGraphData(DAYS, COIN_ID).observe(this, this::addData);
     }
 
     private void addData(GraphModel graphData) {
         options = management.getHiOptions();
-        HISpline series1 = new HISpline();
-        series1.setName(COIN_ID);
-        Number[] series1_data = new Number[graphData.getPrices().size()];
-        for (int a = 0; a < graphData.getPrices().size(); a++) {
-            series1_data[a] = graphData.getPrices().get(a).get(1);
-        }
-        series1.setData(new ArrayList<>(Arrays.asList(series1_data)));
-        options.setSeries(new ArrayList<>(Arrays.asList(series1)));
-
         chartView.setOptions(options);
-        Log.d(TAG, "addData: ");
+
+        HITitle hiTitle = new HITitle();
+        hiTitle.setText("");
+        options.setTitle(hiTitle);
+
+
+        //setting price in graph
+
+
+        HITooltip tooltip = new HITooltip();
+        tooltip.setValueSuffix(" " + HomeScreen.CURRENCY);
+        options.setTooltip(tooltip);
+
+        HIPlotOptions plotOptions = new HIPlotOptions();
+        plotOptions.setSpline(new HISpline());
+        plotOptions.getSpline().setLineWidth(2);
+        plotOptions.getSpline().setStates(new HIStates());
+        plotOptions.getSpline().getStates().setHover(new HIHover());
+        plotOptions.getSpline().getStates().getHover().setLineWidth(2);
+        plotOptions.getSpline().setMarker(new HIMarker());
+        plotOptions.getSpline().getMarker().setEnabled(false);
+        options.setPlotOptions(plotOptions);
+
+
+        HISpline series1 = new HISpline();
+        series1.setName(COIN_ID.toUpperCase());
+
+        Number[][] areaData = graphData.getPrices();
+
+        series1.setData(new ArrayList<>(Arrays.asList(areaData)));
+
+
+        HINavigation navigation = new HINavigation();
+        navigation.setMenuItemStyle(new HICSSObject());
+        navigation.getMenuItemStyle().setFontSize("10px");
+        options.setNavigation(navigation);
+
+        options.setSeries(new ArrayList<>(Arrays.asList(series1)));
+        chartView.redraw();
     }
 
-
-    private void loadChart(GraphModel graphData) {
-        LineChart chart = findViewById(R.id.chart);
-        List<Entry> entries = new ArrayList<Entry>();
-        try {
-            for (int a = 0; a < graphData.getPrices().size(); a++) {
-                float timeStamp = graphData.getPrices().get(a).get(0);
-                float price = graphData.getPrices().get(a).get(1);
-              /*  String time = java.text.DateFormat.getTimeInstance().format( timeStamp );
-                float market_caps = graphData.getMarket_caps().get( a ).get( 1 );
-                float total_volumes = graphData.getTotal_volumes().get( a ).get( 1 );*/
-                try {
-                    entries.add(new Entry(timeStamp, price, R.drawable.app_logo));
-                } catch (Exception e) {
-                }
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "null value: " + e.getLocalizedMessage());
-        }
-
-        chart.setDragEnabled(true);
-        chart.getDescription().setEnabled(false);
-        chart.setScaleEnabled(true);
-        chart.animateX(1500);
-        chart.getXAxis().setEnabled(false);
-        chart.getAxisRight().setEnabled(false);
-        Legend l = chart.getLegend();
-        l.setEnabled(true);
-
-        LineDataSet dataSet = new LineDataSet(entries, "Price in (" + HomeScreen.CURRENCY.toUpperCase() + ")"); // add entries to dataset
-        dataSet.setColor(R.color.colorPrimaryDark);
-        dataSet.setValueTextColor(R.color.colorAccent);
-        dataSet.setCircleRadius(1f);
-        dataSet.setCircleHoleRadius(0.2f);
-        dataSet.setCircleColor(R.color.colorPrimaryDark);
-
-        chart.setNoDataText("Loading...");
-
-        LineData lineData = new LineData(dataSet);
-        chart.setData(lineData);
-        chart.invalidate();
-
-    }
 
     private void setToolbar(Toolbar toolbar) {
         setSupportActionBar(toolbar);
